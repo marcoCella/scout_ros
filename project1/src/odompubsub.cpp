@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include "project1/OdomInt.h"
 #include "nav_msgs/Odometry.h"
 #include "geometry_msgs/TwistStamped.h"
 #include "geometry_msgs/PointStamped.h"
@@ -18,10 +19,12 @@ private:
     ros::Subscriber velsub;
     ros::Subscriber resetsub;
     ros::Publisher  odompub;
+    ros::Publisher  custompub;
     tf2::Quaternion q;
     tf2_ros::TransformBroadcaster tb;
     geometry_msgs::TransformStamped transformStamped;
     nav_msgs::Odometry scout_odom;
+    project1::OdomInt  odom_intmethod;
 
     dynamic_reconfigure::Server<project1::parametersConfig> server;
     dynamic_reconfigure::Server<project1::parametersConfig>::CallbackType f;
@@ -36,9 +39,10 @@ private:
 public:
     odom()
     {
-        odompub  = n.advertise<nav_msgs::Odometry>("/odom", 1);
-        velsub   = n.subscribe("/velpub", 1, &odom::callback, this);
-        resetsub = n.subscribe("/newodom", 1, &odom::newOdomCallback, this);
+        odompub   = n.advertise<nav_msgs::Odometry>("/odom", 1);
+        custompub = n.advertise<project1::OdomInt>("/custom_odom", 1);
+        velsub    = n.subscribe("/velpub", 1, &odom::callback, this);
+        resetsub  = n.subscribe("/newodom", 1, &odom::newOdomCallback, this);
 
         f = boost::bind(&odom::dynparamcallback, this, _1, _2);
         server.setCallback(f);
@@ -90,8 +94,15 @@ public:
         transformStamped.transform.rotation.z    = q.z();
         transformStamped.transform.rotation.w    = q.w();
 
+        odom_intmethod.odo        = scout_odom;
+        if(integrationMethod == 0)
+            odom_intmethod.int_method.data = "euler";
+        if(integrationMethod == 1)
+            odom_intmethod.int_method.data = "rk";
+
         tb.sendTransform(transformStamped);
         odompub.publish(scout_odom);
+        custompub.publish(odom_intmethod);
 
     }
 
