@@ -9,7 +9,7 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
 
-static const float RATE = 50.0f; // Sampling frequency given by "rostopic hz /velpub"
+static const float RATE = 50.0f;    // Sampling frequency given by "rostopic hz /velpub"
 static const float T = 1.0f / RATE; // Sampling period
 
 class odom
@@ -26,6 +26,7 @@ private:
     nav_msgs::Odometry scout_odom;
     project1::OdomInt  odom_intmethod;
 
+    // Dynamic reconfigure
     dynamic_reconfigure::Server<project1::parametersConfig> server;
     dynamic_reconfigure::Server<project1::parametersConfig>::CallbackType f;
 
@@ -44,9 +45,13 @@ public:
         velsub    = n.subscribe("/velpub", 1, &odom::callback, this);
         resetsub  = n.subscribe("/newodom", 1, &odom::newOdomCallback, this);
 
-        f = boost::bind(&odom::dynparamcallback, this, _1, _2);
+        // Dynamic parameters callback. Whenever the integration method is 
+        // modified at runtime, call dynparamcallback()
+        f = boost::bind(&odom::dynparamcallback, this, _1, _2); 
         server.setCallback(f);
 
+        // Retrieve the paramters from the paramater server.
+        // They can be found in the launch file.
         n.getParam("/x_init", x_init);
         n.getParam("/y_init", y_init);
         n.getParam("/theta_init", theta_init);

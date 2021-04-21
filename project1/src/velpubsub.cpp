@@ -6,26 +6,32 @@
 #include <message_filters/sync_policies/exact_time.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
+// Just to have a cleaner code
 using TWS = geometry_msgs::TwistStamped;
 using MS  = robotics_hw1::MotorSpeed;
 
+
+// Definition of constants. I've put them here and not in the parameter server
+// since they're fixed, there's no need to modify them
 static const float RAD = 0.1575f; // Wheel radius  [m]
 static const float B = 0.583f;    // Real baseline [m]
 static const float PI = 3.1416f;  // Hope it's self explanatory
-static const float CHI = 1.75f;    // Scaling coefficient for the apparent baseline
+static const float CHI = 1.75f;   // Scaling coefficient for the apparent baseline
 static const float RATIO = 1.0f / 38.7f; // Transmisson ratio from the engine to the wheels
 
 class pubv_subrpm
 {
 
 private:
-    ros::NodeHandle n;
+    ros::NodeHandle n; 
 
-    message_filters::Subscriber<MS> fr;
+    // Declare the subscribers for the wheels' rpms
+    message_filters::Subscriber<MS> fr; 
     message_filters::Subscriber<MS> fl;
     message_filters::Subscriber<MS> rl;
     message_filters::Subscriber<MS> rr;
 
+    // Message filters delcaration, uncomment only one of the two policies
     typedef message_filters::sync_policies::ExactTime<MS, MS, MS, MS> SyncPolicy;
     //typedef message_filters::sync_policies::ApproximateTime<MS, MS, MS, MS> SyncPolicy;
     typedef message_filters::Synchronizer<SyncPolicy> Sync;
@@ -35,6 +41,7 @@ public:
     TWS velocity;
     ros::Publisher pubv = n.advertise<geometry_msgs::TwistStamped>("/velpub", 1);
 
+    // Constructor
     pubv_subrpm()
     {
         fr.subscribe(n, "/motor_speed_fr", 1);
@@ -43,7 +50,6 @@ public:
         rl.subscribe(n, "/motor_speed_rl", 1);
 
         sync.reset(new Sync(SyncPolicy(1), fr, fl, rr, rl));
-
         sync->registerCallback(boost::bind(&pubv_subrpm::callback, this, _1, _2, _3, _4));
     }
 
