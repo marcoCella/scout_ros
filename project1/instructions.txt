@@ -1,7 +1,7 @@
 MEMBERS
 - Marco Cella        10578855
-- Giacomo Delcaro    ********
-- Alessandro Colombo ********
+- Giacomo Delcaro    10560602
+- Alessandro Colombo 10573335
 
 
 FILES
@@ -61,18 +61,20 @@ It is now possible to echo the data from the different topics
 
 If you want to visualize the movement on rviz:
 1 - Launch as before
-2 - NOW OPEN RVIZ with the scout_rviz.rviz configuration
+2 - Now open rviz with the scout_rviz.rviz configuration
 3 - Play the bag 
-NB: for some reason rviz might start with wrong initial conditions or even show the wrong movement.
-    If this should happen, kill everything and start again from point 1.
 
 For the dynamic reconfigure:
  while the nodes are running, type in the bash:
  rosrun dynamic_reconfigure dynparam set /odompubsub intmethod value
  "Value" can be either 0 for euler integration or 1 for runge - kutta
 
+
 For the client - server:
     TODO
+Mettere come abbiamo messo i parametri : TODO
+gt_pose: capire TODO
+check echo topic custom odom: TODO
 
 
 

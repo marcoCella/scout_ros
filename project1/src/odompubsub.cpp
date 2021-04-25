@@ -9,6 +9,8 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
 
+#define PI 3.1415
+
 static const float RATE = 50.0f;    // Sampling frequency given by "rostopic hz /velpub"
 static const float T = 1.0f / RATE; // Sampling period
 
@@ -52,9 +54,18 @@ public:
 
         // Retrieve the paramters from the paramater server.
         // They can be found in the launch file.
-        n.getParam("/x_init", x_init);
-        n.getParam("/y_init", y_init);
-        n.getParam("/theta_init", theta_init);
+        if(n.hasParam("/odompubsub/x_init"))
+            n.getParam("/odompubsub/x_init", x_init);
+        else
+            x_init = 0.0f;
+        if(n.hasParam("/odompubsub/y_init"))
+            n.getParam("/odompubsub/y_init", y_init);
+        else
+            y_init = 0.0f;
+        if(n.hasParam("/odompubsub/theta_init"))
+            n.getParam("/odompubsub/theta_init", theta_init);
+        else
+            theta_init = 0.0f;
 
         scout_odom.header.frame_id = "odom";
         scout_odom.child_frame_id  = "base_link";
@@ -65,9 +76,9 @@ public:
         scout_odom.pose.pose.position.x = x_init;
         scout_odom.pose.pose.position.y = y_init;
         scout_odom.pose.pose.position.z = 0.0f;
-
+        
         theta = theta_init;
-        q.setRPY(0.0f, 0.0f, theta_init);
+        q.setRPY(0.0f, 0.0f, theta);
         scout_odom.pose.pose.orientation.x = q.x();
         scout_odom.pose.pose.orientation.y = q.y();
         scout_odom.pose.pose.orientation.z = q.z();
