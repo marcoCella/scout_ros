@@ -1,0 +1,13 @@
+<launch>
+ 
+ <!-- Run  the node that reads the wheels velocities from the bag and publishes the Twist message-->
+<node pkg = "project1" name = "velpubsub" type = "velpubsub" output="screen" />
+
+<!-- Run the pose node. Theta must be in radians -->
+<node pkg = "project1" name = "odompubsub" type = "odompubsub" output="screen">
+    <rosparam param="x_init">     0.0 </rosparam>
+    <rosparam param="y_init">     0.0 </rosparam>
+    <rosparam param="theta_init"> 0.0 </rosparam>
+</node>
+
+</launch>

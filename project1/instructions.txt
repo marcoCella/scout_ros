@@ -1,0 +1,82 @@
+MEMBERS
+- Marco Cella        10578855
+- Giacomo Delcaro    10560602
+- Alessandro Colombo 10573335
+
+
+FILES
+- bags:
+    - bag1.bag
+    - bag2.bag
+    - bag3.bag
+
+- cfg:
+    - parameters.cfg -> file for the dynamic reconfigure
+
+- launch:
+    - scout_launch.launch -> launch file, launches only the two main nodes 
+                             velpubsub and odompubsub and the paramaters needed
+
+- msg:
+    - OdomInt.msg -> contains the custom message to publish odometry and integration method
+
+- srv:
+    - TODO
+    - TODO
+
+- src: 
+    - velpubsub.cpp  -> the node that subscribes to the rpm topics and publishes a 
+                       twist message containing all of the robot's speeds
+    - odompubsub.cpp -> the node that subscribes to the topic advertised by velpubsub
+                        and publishes the complete odometry and the custom message
+
+    - server TODO
+    - client TODO
+
+- scout_rviz.rviz -> rviz configuration to visualize the computed odometry vs the ground truth
+
+
+ROS PARAMETERS
+- x_init:     initial x position in the odom frame
+- y_init:     initial y position in the odom frame
+- theta_init: initial yaw angle wrt the odom frame
+
+TF TREE:
+- odom
+    - base_link
+
+
+CUSTOME MESSAGE
+- nav_msgs/Odometry odo
+- std_msgs/String   int_method
+
+
+HOW TO RUN EVERYTHING
+I - catkin_make in the catkin workspace root
+II- source catkin_ws/devel/setup.bash
+1 - roslaunch project1 scout_launch.launch
+2 - rosbag play -l bag1.bag 
+    NB: for this second step you must cd to the folder where the bag files are
+It is now possible to echo the data from the different topics 
+
+If you want to visualize the movement on rviz:
+1 - Launch as before
+2 - Now open rviz with the scout_rviz.rviz configuration
+3 - Play the bag 
+
+For the dynamic reconfigure:
+ while the nodes are running, type in the bash:
+ rosrun dynamic_reconfigure dynparam set /odompubsub intmethod value
+ "Value" can be either 0 for euler integration or 1 for runge - kutta
+
+
+For the client - server:
+    TODO
+Mettere come abbiamo messo i parametri : TODO
+gt_pose: capire TODO
+check echo topic custom odom: TODO
+
+
+
+
+
