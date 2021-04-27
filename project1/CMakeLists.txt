@@ -7,7 +7,7 @@ generate_dynamic_reconfigure_options(cfg/parameters.cfg)
 
 add_service_files(FILES resetOdom.srv)
 
-add_message_files(FILES OdomInt.msg)
+add_message_files(FILES OdomInt.msg er_array.msg)
 
 generate_messages(DEPENDENCIES std_msgs nav_msgs geometry_msgs)
 

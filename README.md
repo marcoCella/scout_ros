@@ -1,1 +1,2 @@
-# scout_ros
+# scout_ros the game
+

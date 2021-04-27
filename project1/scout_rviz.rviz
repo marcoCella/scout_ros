@@ -83,7 +83,7 @@ Visualization Manager:
         Shaft Length: 1
         Shaft Radius: 0.05000000074505806
         Value: Arrow
-      Topic: /odom
+      Topic: /our_odom
       Unreliable: false
       Value: true
     - Class: rviz/TF

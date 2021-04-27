@@ -42,7 +42,7 @@ private:
 public:
     odom()
     {
-        odompub   = n.advertise<nav_msgs::Odometry>("/odom", 1);
+        odompub   = n.advertise<nav_msgs::Odometry>("/our_odom", 1);
         custompub = n.advertise<project1::OdomInt>("/custom_odom", 1);
         velsub    = n.subscribe("/velpub", 1, &odom::callback, this);
         resetsub  = n.subscribe("/newodom", 1, &odom::newOdomCallback, this);
