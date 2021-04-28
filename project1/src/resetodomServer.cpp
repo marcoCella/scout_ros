@@ -10,13 +10,17 @@ bool reset(project1::resetOdom::Request& req,
 {
     res.newOdom.header.stamp = ros::Time::now();
     
+    float x = req.x.data;
+    float y = req.y.data;
+    float theta = req.theta.data;
+
     tf2::Quaternion q;
 
-    res.newOdom.pose.pose.position.x = 0.0f;
-    res.newOdom.pose.pose.position.y = 0.0f;
+    res.newOdom.pose.pose.position.x = x;
+    res.newOdom.pose.pose.position.y = y;
     res.newOdom.pose.pose.position.z = 0.0f;
 
-    q.setRPY(0.0f, 0.0f, 0.0f);
+    q.setRPY(0.0f, 0.0f, theta);
     res.newOdom.pose.pose.orientation.x = q.x();
     res.newOdom.pose.pose.orientation.y = q.y();
     res.newOdom.pose.pose.orientation.z = q.z();
@@ -33,7 +37,7 @@ bool reset(project1::resetOdom::Request& req,
     // res.newOdom.point.x = 0.0f;
     // res.newOdom.point.y = 0.0f;
     // res.newOdom.point.z = 0.0f;
-
+    ROS_INFO("moving to %f, %f, with angle %f",x, y, theta);
     return true;
 }
 

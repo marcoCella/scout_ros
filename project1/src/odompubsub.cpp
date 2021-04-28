@@ -160,10 +160,14 @@ public:
 
     void newOdomCallback(const nav_msgs::Odometry::ConstPtr& msg)
     {
-        scout_odom.header.stamp         = msg->header.stamp;
-        scout_odom.pose.pose.position.x = msg->pose.pose.position.x;
-        scout_odom.pose.pose.position.y = msg->pose.pose.position.y;
-        scout_odom.pose.pose.position.z = msg->pose.pose.position.z;
+        scout_odom.header.stamp            = msg->header.stamp;
+        scout_odom.pose.pose.position.x    = msg->pose.pose.position.x;
+        scout_odom.pose.pose.position.y    = msg->pose.pose.position.y;
+        scout_odom.pose.pose.position.z    = msg->pose.pose.position.z;
+        scout_odom.pose.pose.orientation.x = msg->pose.pose.orientation.x;
+        scout_odom.pose.pose.orientation.y = msg->pose.pose.orientation.y;
+        scout_odom.pose.pose.orientation.z = msg->pose.pose.orientation.z;
+        scout_odom.pose.pose.orientation.w = msg->pose.pose.orientation.w;
 
         odompub.publish(scout_odom);
     }
