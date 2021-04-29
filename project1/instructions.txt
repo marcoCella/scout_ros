@@ -14,11 +14,17 @@ FILES
     - parameters.cfg -> file for the dynamic reconfigure
 
 - launch:
-    - scout_launch.launch -> launch file, launches only the two main nodes 
-                             velpubsub and odompubsub and the paramaters needed
+    - scout_launch.launch -> launch file, launches the velpubsub, odompubsub and residual nodes.
+                             It is also possible to change the inital position of the robot.
+
+    - scout_launch_rviz.launch -> launch file, just like the other one but it also plays the bag and 
+                                  runs rviz with the right configuration. 
 
 - msg:
     - OdomInt.msg -> contains the custom message to publish odometry and integration method
+    
+    - er_array.msg -> custome message to publish the residuals between the ground truth and the 
+                      estimated odometry
 
 - srv:
     - resetOdom.srv -> contains the types of the request and response variables used by the
@@ -38,6 +44,8 @@ FILES
                               pass no arguments to reset the odometry to 0,0,0 or choose x, y and theta [deg]
                               in order to set the odometry to a new one based on these parameters
 
+    - residuals.cpp -> the node that publishes the residuals between the ground truth and the estimated odometry
+
 - scout_rviz.rviz -> rviz configuration to visualize the computed odometry vs the ground truth
 
 
@@ -51,10 +59,17 @@ TF TREE:
     - base_link
 
 
-CUSTOME MESSAGE
-- nav_msgs/Odometry odo
-- std_msgs/String   int_method
+CUSTOME MESSAGES
+- OdomInt.msg:
+    - nav_msgs/Odometry odo
+    - std_msgs/String   int_method
 
+- er_array.msg:
+    - std_msgs/Float64 dx
+    - std_msgs/Float64 dy
+    - std_msgs/Float64 dtheta
+    - std_msgs/Float64 dtot
+      
 
 HOW TO RUN EVERYTHING
 I - catkin_make in the catkin workspace root
@@ -66,8 +81,10 @@ It is now possible to echo the data from the different topics
 
 If you want to visualize the movement on rviz:
 1 - Launch as before
-2 - Now open rviz with the scout_rviz.rviz configuration
+2 - Open rviz with the scout_rviz.rviz configuration
 3 - Play the bag 
+
+You can also simply launch the scout_launch_rviz.launch file, it will take care of everything.
 
 For the dynamic reconfigure:
  while the nodes are running, type in the bash:
@@ -83,9 +100,13 @@ For the client - server:
     NB: Theta must be in degrees
 
 
-
-Mettere come abbiamo messo i parametri : TODO
-gt_pose: capire TODO
+APPENDIX - APPARENT BASELINE AND TRANSMISSION RATIO
+Both parameters have been estimated following a heuristic function comparing the estimated velocities values 
+with the ground truth ones. For the transmission ratio we've used the values of the longitudinal velocity vx, 
+whereas for the apparent baseline we've used the angular velocity wz.
+The best values we've found are the following:
+- Transmission ratio: 1:38.7
+- Apparent baseline:  1.75 * B
 
 
 

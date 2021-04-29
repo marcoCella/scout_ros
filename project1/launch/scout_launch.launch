@@ -10,4 +10,6 @@
     <rosparam param="theta_init"> 0.0 </rosparam>
 </node>
 
+<node pkg = "project1" name = "residuals" type = "residuals" output="screen" />
+
 </launch>

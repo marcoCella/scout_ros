@@ -1,0 +1,24 @@
+<launch>
+ 
+ <!-- Run  the node that reads the wheels velocities from the bag and publishes the Twist message -->
+<node pkg = "project1" name = "velpubsub" type = "velpubsub" output="screen" />
+
+<!-- Run the pose node. Theta must be in radians -->
+<node pkg = "project1" name = "odompubsub" type = "odompubsub" output="screen">
+    <rosparam param="x_init">     0.0 </rosparam>
+    <rosparam param="y_init">     0.0 </rosparam>
+    <rosparam param="theta_init"> 0.0 </rosparam>
+</node>
+
+<!-- Run the residuals node -->
+<node pkg = "project1" name = "residuals" type = "residuals" output="screen" />
+
+<!-- Run the bag -->
+<arg name = "bag_file_name" value = "bag1"/>
+<node pkg = "rosbag" type = "play" name = "rosbag_play" output = "screen" args = "--clock $(find project1)/bags/$(arg bag_file_name).bag"/>
+
+<!-- Run rviz -->
+<arg  name="rvizconfig" default="$(find project1)/scout_rviz.rviz" />
+<node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+</launch>
