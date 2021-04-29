@@ -44,8 +44,8 @@ public:
     {
         odompub   = n.advertise<nav_msgs::Odometry>("/our_odom", 100);
         custompub = n.advertise<project1::OdomInt>("/custom_odom", 100);
-        velsub    = n.subscribe("/velpub", 1, &odom::callback, this);
-        resetsub  = n.subscribe("/newodom", 1, &odom::newOdomCallback, this);
+        velsub    = n.subscribe("/velpub", 100, &odom::callback, this);
+        resetsub  = n.subscribe("/newodom", 100, &odom::newOdomCallback, this);
 
         // Dynamic parameters callback. Whenever the integration method is
         // modified at runtime, call dynparamcallback()

@@ -29,16 +29,16 @@ private:
 public:
 
     float dx, dy, dtheta, dtot;
-    ros::Publisher pub_er = n.advertise<project1::er_array>("/residual", 1000);
+    ros::Publisher pub_er = n.advertise<project1::er_array>("/residual", 100);
     ros::Subscriber re_timer;      //listen to scout odom, republih the message with a new timestamp
     ros::Publisher mirror; // publish the restamped message for the filter to synchronize
 
     residual()
     {
-        re_timer = n.subscribe("/scout_odom",  1000, &residual::time_callback, this);
+        re_timer = n.subscribe("/scout_odom",  100, &residual::time_callback, this);
         
-        scout_odom_sub.subscribe(n, "/real_time_odom", 1000);
-        our_odom_sub.subscribe(n, "/our_odom", 1000);
+        scout_odom_sub.subscribe(n, "/real_time_odom", 100);
+        our_odom_sub.subscribe(n, "/our_odom", 100);
 
         sync_er.reset(new Sync_er(SyncPolicy_er(10), scout_odom_sub, our_odom_sub));
         sync_er->registerCallback(boost::bind(&residual::callback_er, this, _1, _2));
@@ -46,18 +46,20 @@ public:
 
     void time_callback(const OD::ConstPtr& scout_odom)
     {
-        mirror = n.advertise<OD>("/real_time_odom", 1000);
+        mirror = n.advertise<OD>("/real_time_odom", 100);
         OD real_time_odom;
         real_time_odom = *scout_odom;
         real_time_odom.header.stamp = ros::Time::now();  //real time is the same as scout but with header "now"
 
         mirror.publish(real_time_odom);
     }
-
-    void callback_er(const OD::ConstPtr& scout_odom, const OD::ConstPtr& our_odom)
+    
+    //this recieve the odom from the bag, with the corrected time stamp, and the one from our odompubsub
+    void callback_er(const OD::ConstPtr& scout_odom, const OD::ConstPtr& our_odom)   
     {
         ROS_INFO("I'm residuating");
         
+        //quaternion to RPY
         tf::Quaternion scout(
             scout_odom->pose.pose.orientation.x,
             scout_odom->pose.pose.orientation.y,
