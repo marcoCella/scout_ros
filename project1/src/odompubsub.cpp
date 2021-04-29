@@ -7,6 +7,7 @@
 #include <dynamic_reconfigure/server.h>
 #include <project1/parametersConfig.h>
 #include <tf2_ros/transform_broadcaster.h>
+#include <tf/tf.h>
 #include <geometry_msgs/TransformStamped.h>
 
 #define PI 3.1415
@@ -42,10 +43,10 @@ private:
 public:
     odom()
     {
-        odompub   = n.advertise<nav_msgs::Odometry>("/our_odom", 1);
-        custompub = n.advertise<project1::OdomInt>("/custom_odom", 1);
-        velsub    = n.subscribe("/velpub", 1, &odom::callback, this);
-        resetsub  = n.subscribe("/newodom", 1, &odom::newOdomCallback, this);
+        odompub   = n.advertise<nav_msgs::Odometry>("/our_odom", 1000);
+        custompub = n.advertise<project1::OdomInt>("/custom_odom", 1000);
+        velsub    = n.subscribe("/velpub", 1000, &odom::callback, this);
+        resetsub  = n.subscribe("/newodom", 1000, &odom::newOdomCallback, this);
 
         // Dynamic parameters callback. Whenever the integration method is 
         // modified at runtime, call dynparamcallback()
@@ -164,12 +165,16 @@ public:
         scout_odom.pose.pose.position.x    = msg->pose.pose.position.x;
         scout_odom.pose.pose.position.y    = msg->pose.pose.position.y;
         scout_odom.pose.pose.position.z    = msg->pose.pose.position.z;
-        scout_odom.pose.pose.orientation.x = msg->pose.pose.orientation.x;
-        scout_odom.pose.pose.orientation.y = msg->pose.pose.orientation.y;
-        scout_odom.pose.pose.orientation.z = msg->pose.pose.orientation.z;
-        scout_odom.pose.pose.orientation.w = msg->pose.pose.orientation.w;
-
-        odompub.publish(scout_odom);
+        tf::Quaternion scout(
+            msg->pose.pose.orientation.x,
+            msg->pose.pose.orientation.y,
+            msg->pose.pose.orientation.z,
+            msg->pose.pose.orientation.w);
+        tf::Matrix3x3 scout_matrix(scout);
+        double roll, pitch, yaw;
+        scout_matrix.getRPY(roll, pitch, yaw);
+        theta = yaw;
+        //odompub.publish(scout_odom);
     }
 };
 

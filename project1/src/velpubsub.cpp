@@ -39,12 +39,10 @@ private:
     message_filters::Subscriber<OD> our_odom_sub;
     message_filters::Subscriber<OD> scout_odom_sub;
     project1::er_array residual;
-    
-
 
     // Message filters delcaration, uncomment only one of the two policies
-    //stypedef message_filters::sync_policies::ExactTime<MS, MS, MS, MS> SyncPolicy;
-    typedef message_filters::sync_policies::ApproximateTime<MS, MS, MS, MS> SyncPolicy;
+    typedef message_filters::sync_policies::ExactTime<MS, MS, MS, MS> SyncPolicy;
+    //typedef message_filters::sync_policies::ApproximateTime<MS, MS, MS, MS> SyncPolicy;
     typedef message_filters::Synchronizer<SyncPolicy> Sync;
     boost::shared_ptr<Sync> sync;
 
@@ -56,25 +54,25 @@ private:
 
 public:
     TWS velocity;
-    ros::Publisher pubv = n.advertise<geometry_msgs::TwistStamped>("/velpub", 1);
+    ros::Publisher pubv = n.advertise<geometry_msgs::TwistStamped>("/velpub", 1000);
 
-    ros::Publisher pub_er = n.advertise<project1::er_array>("/residual", 1);
+    ros::Publisher pub_er = n.advertise<project1::er_array>("/residual", 1000);
     // Constructor
     pubv_subrpm()
     {
-        fr.subscribe(n, "/motor_speed_fr", 1);
-        fl.subscribe(n, "/motor_speed_fl", 1);
-        rr.subscribe(n, "/motor_speed_rr", 1);
-        rl.subscribe(n, "/motor_speed_rl", 1);
+        fr.subscribe(n, "/motor_speed_fr", 1000);
+        fl.subscribe(n, "/motor_speed_fl", 1000);
+        rr.subscribe(n, "/motor_speed_rr", 1000);
+        rl.subscribe(n, "/motor_speed_rl", 1000);
 
         sync.reset(new Sync(SyncPolicy(1), fr, fl, rr, rl));
         sync->registerCallback(boost::bind(&pubv_subrpm::callback, this, _1, _2, _3, _4));
 
         //yep, error computation again
-        scout_odom_sub.subscribe(n, "/scout_odom", 1);
-        our_odom_sub.subscribe(n, "/our_odom", 1);
+        scout_odom_sub.subscribe(n, "/scout_odom", 1000);
+        our_odom_sub.subscribe(n, "/our_odom", 1000);
 
-        sync_er.reset(new Sync_er(SyncPolicy_er(1), scout_odom_sub, our_odom_sub));
+        sync_er.reset(new Sync_er(SyncPolicy_er(10), scout_odom_sub, our_odom_sub));
         sync_er->registerCallback(boost::bind(&pubv_subrpm::callback_er, this, _1, _2));
     }
 
@@ -98,7 +96,7 @@ public:
     // don't give importance to the fact that this is called velpubsub and not vel&positionerrorpubsub
     void callback_er(const OD::ConstPtr& scout_odom, const OD::ConstPtr& our_odom)
     {
-        ROS_INFO("%f",scout_odom->pose.pose.orientation.x);
+        ROS_INFO("AAAAAA%f",scout_odom->pose.pose.orientation.x);
 
         tf::Quaternion scout(
             scout_odom->pose.pose.orientation.x,
