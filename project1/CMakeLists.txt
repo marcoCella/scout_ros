@@ -7,7 +7,7 @@ generate_dynamic_reconfigure_options(cfg/parameters.cfg)
 
 add_service_files(FILES resetOdom.srv)
 
-add_message_files(FILES OdomInt.msg)
+add_message_files(FILES OdomInt.msg er_array.msg)
 
 generate_messages(DEPENDENCIES std_msgs nav_msgs geometry_msgs)
 
@@ -31,3 +31,6 @@ add_executable(reset_odom_client src/resetodomClient.cpp)
 target_link_libraries(reset_odom_client ${catkin_LIBRARIES})
 add_dependencies(reset_odom_client ${catkin_EXPORTED_TARGETS})
 
+add_executable(residuals src/residuals.cpp)
+target_link_libraries(residuals ${catkin_LIBRARIES})
+add_dependencies(residuals ${catkin_EXPORTED_TARGETS})

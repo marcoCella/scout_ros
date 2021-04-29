@@ -32,10 +32,10 @@ FILES
                         and publishes the complete odometry and the custom message
 
     - resetodomServer.cpp -> the server for the set/reset service. It receives the 
-                             desired new pose x, y, theta[deg] and returns the new odometry
+                             desired new pose x, y, theta[rad] and returns the new odometry
 
     - clientodomServer.cpp -> the client for the set/reset service. When called, the user can either 
-                              pass no arguments to reset the odometry to 0,0,0 or choose x, y and theta [deg]
+                              pass no arguments to reset the odometry to 0,0,0 or choose x, y and theta [rad]
                               in order to set the odometry to a new one based on these parameters
 
 - scout_rviz.rviz -> rviz configuration to visualize the computed odometry vs the ground truth
@@ -61,7 +61,7 @@ I - catkin_make in the catkin workspace root
 II- source catkin_ws/devel/setup.bash
 1 - roslaunch project1 scout_launch.launch
 2 - rosbag play -l bag1.bag 
-    NB: for this second step you must cd to the folder where the bag files are
+    NB: for this second step you must cd to the folder where the bag files are --/src/bags
 It is now possible to echo the data from the different topics 
 
 If you want to visualize the movement on rviz:
@@ -80,7 +80,7 @@ For the client - server:
 2 - Run the client: 
     - To reset the odometry to 0, 0, 0: rosrun project1 reset_odom_client
     - To set the odometry to x, y, theta: rosrun project1 reset_odom_client x y theta
-    NB: Theta must be in degrees
+    NB: Theta must be in radians
 
 
 
