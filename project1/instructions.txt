@@ -21,17 +21,22 @@ FILES
     - OdomInt.msg -> contains the custom message to publish odometry and integration method
 
 - srv:
-    - TODO
-    - TODO
+    - resetOdom.srv -> contains the types of the request and response variables used by the
+                       server-client structure to set or reset the pose of the robot
 
 - src: 
     - velpubsub.cpp  -> the node that subscribes to the rpm topics and publishes a 
                        twist message containing all of the robot's speeds
+                       
     - odompubsub.cpp -> the node that subscribes to the topic advertised by velpubsub
                         and publishes the complete odometry and the custom message
 
-    - server TODO
-    - client TODO
+    - resetodomServer.cpp -> the server for the set/reset service. It receives the 
+                             desired new pose x, y, theta[deg] and returns the new odometry
+
+    - clientodomServer.cpp -> the client for the set/reset service. When called, the user can either 
+                              pass no arguments to reset the odometry to 0,0,0 or choose x, y and theta [deg]
+                              in order to set the odometry to a new one based on these parameters
 
 - scout_rviz.rviz -> rviz configuration to visualize the computed odometry vs the ground truth
 
@@ -71,10 +76,17 @@ For the dynamic reconfigure:
 
 
 For the client - server:
-    TODO
+1 - Run the server: rosrun project1 reset_odom_server
+2 - Run the client: 
+    - To reset the odometry to 0, 0, 0: rosrun project1 reset_odom_client
+    - To set the odometry to x, y, theta: rosrun project1 reset_odom_client x y theta
+    NB: Theta must be in degrees
+
+
+
 Mettere come abbiamo messo i parametri : TODO
 gt_pose: capire TODO
-check echo topic custom odom: TODO
+
 
 
 

@@ -13,11 +13,11 @@ using MS  = robotics_hw1::MotorSpeed;
 
 // Definition of constants. I've put them here and not in the parameter server
 // since they're fixed, there's no need to modify them
-static const float RAD = 0.1575f; // Wheel radius  [m]
-static const float B = 0.583f;    // Real baseline [m]
-static const float PI = 3.1416f;  // Hope it's self explanatory
-static const float CHI = 1.75f;   // Scaling coefficient for the apparent baseline
-static const float RATIO = 1.0f / 38.7f; // Transmisson ratio from the engine to the wheels
+const float RAD = 0.1575f; // Wheel radius  [m]
+const float B = 0.583f;    // Real baseline [m]
+const float PI = 3.1416f;  // Hope it's self explanatory
+const float CHI = 1.75f;   // Scaling coefficient for the apparent baseline
+const float RATIO = 1.0f / 38.7f; // Transmisson ratio from the engine to the wheels
 
 class pubv_subrpm
 {
@@ -44,10 +44,10 @@ public:
     // Constructor
     pubv_subrpm()
     {
-        fr.subscribe(n, "/motor_speed_fr", 1);
-        fl.subscribe(n, "/motor_speed_fl", 1);
-        rr.subscribe(n, "/motor_speed_rr", 1);
-        rl.subscribe(n, "/motor_speed_rl", 1);
+        fr.subscribe(n, "/motor_speed_fr", 100);
+        fl.subscribe(n, "/motor_speed_fl", 100);
+        rr.subscribe(n, "/motor_speed_rr", 100);
+        rl.subscribe(n, "/motor_speed_rl", 100);
 
         sync.reset(new Sync(SyncPolicy(1), fr, fl, rr, rl));
         sync->registerCallback(boost::bind(&pubv_subrpm::callback, this, _1, _2, _3, _4));
