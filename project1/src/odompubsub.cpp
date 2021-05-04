@@ -1,6 +1,8 @@
 #include "ros/ros.h"
 #include "project1/OdomInt.h"
+#include "project1/setOdom.h"
 #include "nav_msgs/Odometry.h"
+#include "project1/resetOdom.h"
 #include <tf2/LinearMath/Matrix3x3.h>
 #include "geometry_msgs/TwistStamped.h"
 #include "geometry_msgs/PointStamped.h"
@@ -18,16 +20,21 @@ class odom
 {
 private:
     ros::NodeHandle n;
+
     ros::Subscriber velsub;
-    ros::Subscriber resetsub;
     ros::Publisher odompub;
     ros::Publisher custompub;
+
+    ros::ServiceServer set_service;
+    ros::ServiceServer reset_service;
+
     tf2::Quaternion q;
+    nav_msgs::Odometry scout_odom;
     tf2_ros::TransformBroadcaster tb;
     geometry_msgs::TransformStamped transformStamped;
-    nav_msgs::Odometry scout_odom;
-    project1::OdomInt odom_intmethod;
 
+    project1::OdomInt odom_intmethod;
+    
     // Dynamic reconfigure
     dynamic_reconfigure::Server<project1::parametersConfig> server;
     dynamic_reconfigure::Server<project1::parametersConfig>::CallbackType f;
@@ -45,7 +52,8 @@ public:
         odompub   = n.advertise<nav_msgs::Odometry>("/our_odom", 100);
         custompub = n.advertise<project1::OdomInt>("/custom_odom", 100);
         velsub    = n.subscribe("/velpub", 100, &odom::callback, this);
-        resetsub  = n.subscribe("/newodom", 100, &odom::newOdomCallback, this);
+        set_service   = n.advertiseService("set_odom", &odom::set, this);
+        reset_service = n.advertiseService("reset_odom", &odom::reset, this);
 
         // Dynamic parameters callback. Whenever the integration method is
         // modified at runtime, call dynparamcallback()
@@ -157,21 +165,43 @@ public:
             ROS_INFO("\n\n Integration method: Runge - Kutta\n\n");
     }
 
-    void newOdomCallback(const nav_msgs::Odometry::ConstPtr &msg)
+    bool reset(project1::resetOdom::Request &req,
+               project1::resetOdom::Response &res)
     {
-        scout_odom.header.stamp = msg->header.stamp;
-        scout_odom.pose.pose.position.x = msg->pose.pose.position.x;
-        scout_odom.pose.pose.position.y = msg->pose.pose.position.y;
-        scout_odom.pose.pose.position.z = msg->pose.pose.position.z;
-        tf2::Quaternion new_quat(
-            msg->pose.pose.orientation.x,
-            msg->pose.pose.orientation.y,
-            msg->pose.pose.orientation.z,
-            msg->pose.pose.orientation.w);
-        tf2::Matrix3x3 new_rotmat(new_quat);
-        double roll, pitch, yaw;
-        new_rotmat.getRPY(roll, pitch, yaw);
-        theta = yaw;
+        scout_odom.header.stamp = ros::Time::now();
+
+        scout_odom.pose.pose.position.x = 0.0f;
+        scout_odom.pose.pose.position.y = 0.0f;
+        scout_odom.pose.pose.position.z = 0.0f;
+
+        q.setRPY(0.0f, 0.0f, 0.0f);
+        scout_odom.pose.pose.orientation.x = q.x();
+        scout_odom.pose.pose.orientation.y = q.y();
+        scout_odom.pose.pose.orientation.z = q.z();
+        scout_odom.pose.pose.orientation.w = q.w();
+
+        return true;
+    }
+
+    bool set(project1::setOdom::Request &req,
+             project1::setOdom::Response &res)
+    {
+        scout_odom.header.stamp = ros::Time::now();
+
+        float theta_new = req.th * 3.14f / 180.0f;    // so that the user can set the angle in degrees
+                                                      // when calling the service with rosservice call
+
+        scout_odom.pose.pose.position.x = req.x;
+        scout_odom.pose.pose.position.y = req.y;
+        scout_odom.pose.pose.position.z = 0.0f;
+
+        q.setRPY(0.0f, 0.0f, theta_new);
+        scout_odom.pose.pose.orientation.x = q.x();
+        scout_odom.pose.pose.orientation.y = q.y();
+        scout_odom.pose.pose.orientation.z = q.z();
+        scout_odom.pose.pose.orientation.w = q.w();
+
+        return true;
     }
 };
 

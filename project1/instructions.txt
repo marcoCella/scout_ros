@@ -27,8 +27,9 @@ FILES
                       estimated odometry
 
 - srv:
-    - resetOdom.srv -> contains the types of the request and response variables used by the
-                       server-client structure to set or reset the pose of the robot
+    - resetOdom.srv -> empty, it does not need any input from the user since it simply resets the pose
+
+    - seOdom.srv -> defines the types of the requested input from the user to set the pose to x, y, theta
 
 - src: 
     - velpubsub.cpp  -> the node that subscribes to the rpm topics and publishes a 
@@ -37,14 +38,7 @@ FILES
     - odompubsub.cpp -> the node that subscribes to the topic advertised by velpubsub
                         and publishes the complete odometry and the custom message
 
-    - resetodomServer.cpp -> the server for the set/reset service. It receives the 
-                             desired new pose x, y, theta[deg] and returns the new odometry
-
-    - clientodomServer.cpp -> the client for the set/reset service. When called, the user can either 
-                              pass no arguments to reset the odometry to 0,0,0 or choose x, y and theta [deg]
-                              in order to set the odometry to a new one based on these parameters
-
-    - residuals.cpp -> the node that publishes the residuals between the ground truth and the estimated 		       odometry
+    - residuals.cpp -> the node that publishes the residuals between the ground truth and the estimated odometry
 
 - scout_rviz.rviz -> rviz configuration to visualize the computed odometry vs the ground truth
 
@@ -91,13 +85,9 @@ For the dynamic reconfigure:
  rosrun dynamic_reconfigure dynparam set /odompubsub intmethod value
  "Value" can be either 0 for euler integration or 1 for runge - kutta
 
-
-For the client - server:
-1 - Run the server: rosrun project1 reset_odom_server
-2 - Run the client: 
-    - To reset the odometry to 0, 0, 0: rosrun project1 reset_odom_client
-    - To set the odometry to x, y, theta: rosrun project1 reset_odom_client x y theta
-    NB: Theta must be in degrees
+Reset service: rosservice call /reset_odom
+Set service:   rosservice call /set_odom x y theta 
+    NB: theta must be in [deg]
 
 
 APPENDIX - APPARENT BASELINE AND TRANSMISSION RATIO
