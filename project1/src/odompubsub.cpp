@@ -175,10 +175,10 @@ public:
         scout_odom.pose.pose.position.z = 0.0f;
 
         q.setRPY(0.0f, 0.0f, 0.0f);
-        scout_odom.pose.pose.orientation.x = q.x();
-        scout_odom.pose.pose.orientation.y = q.y();
-        scout_odom.pose.pose.orientation.z = q.z();
-        scout_odom.pose.pose.orientation.w = q.w();
+        tf2::Matrix3x3 new_rotmat(q);
+        double roll, pitch, yaw;
+        new_rotmat.getRPY(roll, pitch, yaw);
+        theta = yaw;
 
         return true;
     }
@@ -196,10 +196,10 @@ public:
         scout_odom.pose.pose.position.z = 0.0f;
 
         q.setRPY(0.0f, 0.0f, theta_new);
-        scout_odom.pose.pose.orientation.x = q.x();
-        scout_odom.pose.pose.orientation.y = q.y();
-        scout_odom.pose.pose.orientation.z = q.z();
-        scout_odom.pose.pose.orientation.w = q.w();
+        tf2::Matrix3x3 new_rotmat(q);
+        double roll, pitch, yaw;
+        new_rotmat.getRPY(roll, pitch, yaw);
+        theta = yaw;
 
         return true;
     }
