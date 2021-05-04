@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "nav_msgs/Odometry.h"
 #include "project1/resetOdom.h"
+#include <std_msgs/Float64.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <geometry_msgs/PointStamped.h>
 
@@ -24,15 +25,15 @@ int main(int argc, char **argv)
 
   if (argc == 1)
   {
-    srv.request.x.data = 0.0f;
-    srv.request.y.data = 0.0f;
-    srv.request.theta.data = 0.0f;
+    srv.request.x = 0.0f;
+    srv.request.y = 0.0f;
+    srv.request.theta = 0.0f;
   }
   else
   {
-    srv.request.x.data = atoll(argv[1]);
-    srv.request.y.data = atoll(argv[2]);
-    srv.request.theta.data = atoll(argv[3]) * 3.14f / 180.0f; // So that the user can choose theta in degrees
+    srv.request.x = atoll(argv[1]);
+    srv.request.y = atoll(argv[2]);
+    srv.request.theta = atoll(argv[3]) * 3.14f / 180.0f; // So that the user can choose theta in degrees
   }
 
   if (client.call(srv))
