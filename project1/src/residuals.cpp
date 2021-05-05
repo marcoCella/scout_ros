@@ -7,10 +7,11 @@
 #include <message_filters/sync_policies/exact_time.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
+#define PI 3.14159265359
+
 using OD = nav_msgs::Odometry;
 
 class residual
-
 {
 private:
     ros::NodeHandle n;
@@ -23,27 +24,31 @@ private:
     typedef message_filters::Synchronizer<SyncPolicy_er> Sync_er;
     boost::shared_ptr<Sync_er> sync_er;
 
+    OD real_time_odom;
+    float dx, dy, dtheta, cumulateError;
+
 public:
-    float dx, dy, dtheta, dtot;
     ros::Publisher pub_er = n.advertise<project1::er_array>("/residual", 100);
-    ros::Subscriber re_timer; //listen to scout odom, republih the message with a new timestamp
+    ros::Subscriber re_timer; //listen to scout odom, republish the message with a new timestamp
     ros::Publisher mirror;    // publish the restamped message for the filter to synchronize
 
     residual()
     {
         re_timer = n.subscribe("/scout_odom", 100, &residual::time_callback, this);
+        mirror = n.advertise<OD>("/real_time_odom", 100);
 
         scout_odom_sub.subscribe(n, "/real_time_odom", 100);
         our_odom_sub.subscribe(n, "/our_odom", 100);
+        
 
-        sync_er.reset(new Sync_er(SyncPolicy_er(10), scout_odom_sub, our_odom_sub));
+        sync_er.reset(new Sync_er(SyncPolicy_er(100), scout_odom_sub, our_odom_sub));
         sync_er->registerCallback(boost::bind(&residual::callback_er, this, _1, _2));
+
+        cumulateError = 0;
     }
 
     void time_callback(const OD::ConstPtr &scout_odom)
     {
-        mirror = n.advertise<OD>("/real_time_odom", 100);
-        OD real_time_odom;
         real_time_odom = *scout_odom;
         real_time_odom.header.stamp = ros::Time::now(); //real time is the same as scout but with header "now"
 
@@ -72,15 +77,15 @@ public:
         double yaw_our;
         our_matrix.getRPY(roll, pitch, yaw_our);
 
-        float dx = our_odom->pose.pose.position.x - scout_odom->pose.pose.position.x;
-        float dy = our_odom->pose.pose.position.y - scout_odom->pose.pose.position.y;
-        float dtheta = yaw_our - yaw_scout;
-        float dtot = sqrt(pow(dx, 2.0f) + pow(dy, 2.0f));
+        dx = our_odom->pose.pose.position.x - scout_odom->pose.pose.position.x;
+        dy = our_odom->pose.pose.position.y - scout_odom->pose.pose.position.y;
+        dtheta = remainder(yaw_our, (2*PI)) - remainder(yaw_scout, (2*PI));
+        cumulateError += sqrt(10000.0f*pow(dx, 2.0f) + 10000.0f*pow(dy, 2.0f) + pow(6/PI, 2.0f)*pow(dtheta, 2.0f));
 
         error_array.dx.data = dx;
         error_array.dy.data = dy;
         error_array.dtheta.data = dtheta;
-        error_array.dtot.data = dtot;
+        error_array.cumulateError.data = cumulateError;
 
         pub_er.publish(error_array);
     }

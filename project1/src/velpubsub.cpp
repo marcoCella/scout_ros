@@ -16,8 +16,6 @@ using MS  = robotics_hw1::MotorSpeed;
 const float RAD = 0.1575f; // Wheel radius  [m]
 const float B = 0.583f;    // Real baseline [m]
 const float PI = 3.1416f;  // Hope it's self explanatory
-const float CHI = 1.75f;   // Scaling coefficient for the apparent baseline
-const float RATIO = 1.0f / 38.7f; // Transmisson ratio from the engine to the wheels
 
 class pubv_subrpm
 {
@@ -37,6 +35,9 @@ private:
     typedef message_filters::Synchronizer<SyncPolicy> Sync;
     boost::shared_ptr<Sync> sync;
 
+    float RATIO; // Transmisson ratio from the engine to the wheels
+    float CHI; // Scaling coefficient for the apparent baseline
+
 public:
     TWS velocity;
     ros::Publisher pubv = n.advertise<geometry_msgs::TwistStamped>("/velpub", 1);
@@ -48,16 +49,31 @@ public:
         fl.subscribe(n, "/motor_speed_fl", 100);
         rr.subscribe(n, "/motor_speed_rr", 100);
         rl.subscribe(n, "/motor_speed_rl", 100);
+        
 
-        sync.reset(new Sync(SyncPolicy(1), fr, fl, rr, rl));
+        sync.reset(new Sync(SyncPolicy(100), fr, fl, rr, rl));
         sync->registerCallback(boost::bind(&pubv_subrpm::callback, this, _1, _2, _3, _4));
+
+        float temp;
+        if (n.hasParam("/CHI"))
+            n.getParam("/CHI", CHI);
+        else
+            CHI = 1.75f;
+        if (n.hasParam("/Inv_RATIO"))
+        {
+            n.getParam("/Inv_RATIO", temp);
+            RATIO = 1.0f /temp;
+        }
+        else
+            RATIO = 1.0f / 38.7f;
     }
 
     void callback(const MS::ConstPtr& fr, const MS::ConstPtr& fl,
                   const MS::ConstPtr& rr, const MS::ConstPtr& rl)
     {
-        float vl = (-rl->rpm * RATIO) * RAD * 2.0f * PI / 60.0f; // Left wheels linear velocity  [m/s]
-        float vr = (fr->rpm * RATIO)  * RAD * 2.0f * PI / 60.0f; // Right wheels linear velocity [m/s]
+        // we average front and rear wheels
+        float vl = ((-rl->rpm -fl->rpm)/2* RATIO) * RAD * 2.0f * PI / 60.0f; // Left wheels linear velocity  [m/s]
+        float vr = ((fr->rpm+rr->rpm)/2 * RATIO)  * RAD * 2.0f * PI / 60.0f; // Right wheels linear velocity [m/s]
 
         velocity.header.stamp = ros::Time::now();
         velocity.twist.linear.x  = (vl + vr) / 2.0f; // Linear velocity of the robot  [m/s]

@@ -1,5 +1,8 @@
 <launch>
  
+<rosparam param="CHI">     1.75 </rosparam>
+<rosparam param="Inv_RATIO">     38.7 </rosparam>
+
  <!-- Run  the node that reads the wheels velocities from the bag and publishes the Twist message -->
 <node pkg = "project1" name = "velpubsub" type = "velpubsub" output="screen" />
 

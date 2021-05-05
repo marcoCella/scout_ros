@@ -13,8 +13,8 @@
 #include <geometry_msgs/TransformStamped.h>
 
 const float RATE = 50.0f;    // Sampling frequency given by "rostopic hz /velpub"
-const float T = 1.0f / RATE; // Sampling period
-const float PI = 3.1415f;
+
+#define PI 3.14159265359
 
 class odom
 {
@@ -45,6 +45,8 @@ private:
     float theta;
     float vx, wz;
     int integrationMethod;
+    ros::Time curr_time, prev_time;
+    float DT; // Sampling period
 
 public:
     odom()
@@ -91,6 +93,12 @@ public:
         scout_odom.pose.pose.orientation.y = q.y();
         scout_odom.pose.pose.orientation.z = q.z();
         scout_odom.pose.pose.orientation.w = q.w();
+
+        odom_intmethod.odo = scout_odom;
+
+        ros::Time zero_time(0.0);
+        curr_time = zero_time;
+        prev_time = zero_time;
     }
 
     void callback(const geometry_msgs::TwistStamped::ConstPtr &vel)
@@ -101,24 +109,17 @@ public:
         vx = vel->twist.linear.x;
         wz = vel->twist.angular.z;
 
-        scout_odom.twist.twist.linear.x = vx;
-        scout_odom.twist.twist.linear.y = vel->twist.linear.y;
-        scout_odom.twist.twist.linear.z = vel->twist.linear.z;
-        scout_odom.twist.twist.angular.x = vel->twist.angular.x;
-        scout_odom.twist.twist.angular.y = vel->twist.angular.y;
-        scout_odom.twist.twist.angular.z = wz;
+        scout_odom.twist.twist = vel->twist;
 
         computeOdom();
 
         transformStamped.transform.translation.x = scout_odom.pose.pose.position.x;
         transformStamped.transform.translation.y = scout_odom.pose.pose.position.y;
-        transformStamped.transform.translation.z = 0.0;
-        transformStamped.transform.rotation.x = q.x();
-        transformStamped.transform.rotation.y = q.y();
-        transformStamped.transform.rotation.z = q.z();
-        transformStamped.transform.rotation.w = q.w();
+        transformStamped.transform.translation.z = scout_odom.pose.pose.position.z;
+        transformStamped.transform.rotation = scout_odom.pose.pose.orientation;
 
         odom_intmethod.odo = scout_odom;
+
         if (integrationMethod == 0)
             odom_intmethod.int_method.data = "euler";
         if (integrationMethod == 1)
@@ -131,20 +132,26 @@ public:
 
     void computeOdom()
     {
+        curr_time = scout_odom.header.stamp;
+        DT = curr_time.toSec() - prev_time.toSec();
+        if(DT<0 && curr_time.toSec()>0)
+            ROS_WARN("Time going backwards when computing odometry");
+        prev_time = curr_time;
+
         if (integrationMethod == 0)
         {
             // EULER INTEGRATION
-            scout_odom.pose.pose.position.x = scout_odom.pose.pose.position.x + vx * T * cosf(theta);
-            scout_odom.pose.pose.position.y = scout_odom.pose.pose.position.y + vx * T * sinf(theta);
-            theta = theta + wz * T;
+            scout_odom.pose.pose.position.x = scout_odom.pose.pose.position.x + vx * DT * cosf(theta);
+            scout_odom.pose.pose.position.y = scout_odom.pose.pose.position.y + vx * DT * sinf(theta);
+            theta = theta + wz * DT;
         }
 
         if (integrationMethod == 1)
         {
             // RUNGE-KUTTA INTEGRATION
-            scout_odom.pose.pose.position.x = scout_odom.pose.pose.position.x + vx * T * cosf(theta + wz * T / 2.0f);
-            scout_odom.pose.pose.position.y = scout_odom.pose.pose.position.y + vx * T * sinf(theta + wz * T / 2.0f);
-            theta = theta + wz * T;
+            scout_odom.pose.pose.position.x = scout_odom.pose.pose.position.x + vx * DT * cosf(theta + wz * DT / 2.0f);
+            scout_odom.pose.pose.position.y = scout_odom.pose.pose.position.y + vx * DT * sinf(theta + wz * DT / 2.0f);
+            theta = theta + wz * DT;
         }
 
         q.setRPY(0.0f, 0.0f, theta);
@@ -174,11 +181,12 @@ public:
         scout_odom.pose.pose.position.y = 0.0f;
         scout_odom.pose.pose.position.z = 0.0f;
 
-        q.setRPY(0.0f, 0.0f, 0.0f);
-        tf2::Matrix3x3 new_rotmat(q);
-        double roll, pitch, yaw;
-        new_rotmat.getRPY(roll, pitch, yaw);
-        theta = yaw;
+        theta = 0.0f;
+        q.setRPY(0.0f, 0.0f, theta);
+        scout_odom.pose.pose.orientation.x = q.x();
+        scout_odom.pose.pose.orientation.y = q.y();
+        scout_odom.pose.pose.orientation.z = q.z();
+        scout_odom.pose.pose.orientation.w = q.w();
 
         return true;
     }
@@ -195,11 +203,12 @@ public:
         scout_odom.pose.pose.position.y = req.y;
         scout_odom.pose.pose.position.z = 0.0f;
 
-        q.setRPY(0.0f, 0.0f, theta_new);
-        tf2::Matrix3x3 new_rotmat(q);
-        double roll, pitch, yaw;
-        new_rotmat.getRPY(roll, pitch, yaw);
-        theta = yaw;
+        theta = theta_new;
+        q.setRPY(0.0f, 0.0f, theta);
+        scout_odom.pose.pose.orientation.x = q.x();
+        scout_odom.pose.pose.orientation.y = q.y();
+        scout_odom.pose.pose.orientation.z = q.z();
+        scout_odom.pose.pose.orientation.w = q.w();
 
         return true;
     }

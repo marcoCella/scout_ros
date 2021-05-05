@@ -1,0 +1,164 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<root version="2.3.8">
+ <tabbed_widget parent="main_window" name="Main Window">
+  <Tab tab_name="tab4" containers="1">
+   <Container>
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+      <DockSplitter orientation="-" count="2" sizes="0.500707;0.499293">
+       <DockArea name="...">
+        <plot style="Lines" mode="TimeSeries">
+         <range right="1757.075916" top="0.100000" left="1753.688622" bottom="-0.100000"/>
+         <limitY/>
+         <curve color="#9467bd" name="/residual/dx/data"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot style="Lines" mode="TimeSeries">
+         <range right="1757.075916" top="0.100000" left="1753.688622" bottom="-0.100000"/>
+         <limitY/>
+         <curve color="#f14cc1" name="/residual/dy/data"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter orientation="-" count="2" sizes="0.500707;0.499293">
+       <DockArea name="...">
+        <plot style="Lines" mode="TimeSeries">
+         <range right="1757.075916" top="0.100000" left="1753.688622" bottom="-0.100000"/>
+         <limitY/>
+         <curve color="#17becf" name="/residual/dtheta/data"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot style="Lines" mode="TimeSeries">
+         <range right="1757.075916" top="0.000000" left="1753.688622" bottom="0.000000"/>
+         <limitY min="0"/>
+         <curve color="#bcbd22" name="/residual/cumulateError/data"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="tab2" containers="1">
+   <Container>
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+      <DockArea name="...">
+       <plot style="Lines" mode="XYPlot">
+        <range right="2.647123" top="-3.325196" left="-0.019463" bottom="-6.663893"/>
+        <limitY/>
+        <curve curve_x="/our_odom/pose/position/x" curve_y="/our_odom/pose/position/y" color="#1f77b4" name="/our_odom/pose/position/[x;y]"/>
+        <curve curve_x="/real_time_odom/pose/position/x" curve_y="/real_time_odom/pose/position/y" color="#d62728" name="/real_time_odom/pose/position/[x;y]"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" mode="TimeSeries">
+        <range right="2004.748486" top="294.551916" left="1989.740036" bottom="82.602912"/>
+        <limitY/>
+        <curve color="#f14cc1" name="Rescaled_odom_yaw_deg"/>
+        <curve color="#9467bd" name="Rescaled_our_odom_yaw_deg"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="tab3" containers="1">
+   <Container>
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+      <DockArea name="...">
+       <plot style="Lines" mode="TimeSeries">
+        <range right="-998.728322" top="0.351586" left="-1003.727842" bottom="0.158963"/>
+        <limitY/>
+        <curve color="#17becf" name="/real_time_odom/twist/linear/x"/>
+        <curve color="#bcbd22" name="/our_odom/twist/linear/x"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" mode="TimeSeries">
+        <range right="-998.728322" top="0.015416" left="-1003.727842" bottom="-0.544327"/>
+        <limitY/>
+        <curve color="#1ac938" name="/real_time_odom/twist/angular/z"/>
+        <curve color="#9467bd" name="/our_odom/twist/angular/z"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="tab1" containers="1">
+   <Container>
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+      <DockArea name="...">
+       <plot style="Lines" mode="TimeSeries">
+        <range right="-1523.054877" top="3000.000000" left="-1528.035281" bottom="-3000.000000"/>
+        <limitY min="-3000" max="3000"/>
+        <curve color="#1f77b4" name="/motor_speed_fl/rpm"/>
+        <curve color="#d62728" name="/motor_speed_rl/rpm"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" mode="TimeSeries">
+        <range right="-1523.428145" top="3000.000000" left="-1524.814250" bottom="-3000.000000"/>
+        <limitY min="-3000" max="3000"/>
+        <curve color="#1ac938" name="/motor_speed_rr/rpm"/>
+        <curve color="#ff7f0e" name="/motor_speed_fr/rpm"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <currentTabIndex index="1"/>
+ </tabbed_widget>
+ <use_relative_time_offset enabled="1"/>
+ <!-- - - - - - - - - - - - - - - -->
+ <!-- - - - - - - - - - - - - - - -->
+ <Plugins>
+  <plugin ID="DataLoad CSV">
+   <default time_axis=""/>
+  </plugin>
+  <plugin ID="DataLoad ROS bags">
+   <use_header_stamp value="false"/>
+   <use_renaming_rules value="true"/>
+   <discard_large_arrays value="true"/>
+   <max_array_size value="100"/>
+  </plugin>
+  <plugin ID="DataLoad ULog"/>
+  <plugin ID="MQTT Subscriber"/>
+  <plugin ID="ROS Topic Subscriber">
+   <use_header_stamp value="false"/>
+   <use_renaming_rules value="true"/>
+   <discard_large_arrays value="true"/>
+   <max_array_size value="100"/>
+  </plugin>
+  <plugin ID="UDP Server"/>
+  <plugin ID="WebSocket Server"/>
+  <plugin ID="ZMQ Subscriber"/>
+  <plugin ID="ROS /rosout Visualization" status="idle"/>
+  <plugin ID="ROS Topic Re-Publisher" status="idle"/>
+ </Plugins>
+ <!-- - - - - - - - - - - - - - - -->
+ <previouslyLoaded_Datafiles/>
+ <previouslyLoaded_Streamer name="ROS Topic Subscriber"/>
+ <!-- - - - - - - - - - - - - - - -->
+ <customMathEquations>
+  <snippet name="Rescaled_our_odom_yaw_deg">
+   <global></global>
+   <function>return value%360</function>
+   <linkedSource>/our_odom/pose/orientation/yaw_deg</linkedSource>
+  </snippet>
+  <snippet name="Rescaled_odom_yaw_deg">
+   <global></global>
+   <function>return value%360</function>
+   <linkedSource>/real_time_odom/pose/orientation/yaw_deg</linkedSource>
+  </snippet>
+ </customMathEquations>
+ <snippets/>
+ <!-- - - - - - - - - - - - - - - -->
+</root>
+
