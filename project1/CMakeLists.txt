@@ -5,8 +5,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp message_generation nav_msgs std_m
 
 generate_dynamic_reconfigure_options(cfg/parameters.cfg)
 
-add_service_files(FILES resetOdom.srv)
-add_service_files(FILES setOdom.srv)
+add_service_files(FILES resetOdom.srv setOdom.srv)
 
 add_message_files(FILES OdomInt.msg er_array.msg)
 

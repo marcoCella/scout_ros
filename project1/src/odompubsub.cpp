@@ -12,8 +12,6 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
 
-const float RATE = 50.0f;    // Sampling frequency given by "rostopic hz /velpub"
-
 #define PI 3.14159265359
 
 class odom
