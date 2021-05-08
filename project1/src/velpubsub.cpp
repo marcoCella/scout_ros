@@ -75,7 +75,7 @@ public:
         float vl = ((-rl->rpm -fl->rpm)/2* RATIO) * RAD * 2.0f * PI / 60.0f; // Left wheels linear velocity  [m/s]
         float vr = ((fr->rpm+rr->rpm)/2 * RATIO)  * RAD * 2.0f * PI / 60.0f; // Right wheels linear velocity [m/s]
 
-        velocity.header.stamp = ros::Time::now();
+        velocity.header.stamp = fr->header.stamp;
         velocity.twist.linear.x  = (vl + vr) / 2.0f; // Linear velocity of the robot  [m/s]
         velocity.twist.linear.y  = 0.0f;
         velocity.twist.linear.z  = 0.0f;

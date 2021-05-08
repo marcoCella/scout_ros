@@ -104,6 +104,8 @@ public:
         scout_odom.header.stamp = ros::Time::now();
         transformStamped.header.stamp = ros::Time::now();
 
+        curr_time = vel->header.stamp;
+
         vx = vel->twist.linear.x;
         wz = vel->twist.angular.z;
 
@@ -123,6 +125,8 @@ public:
         if (integrationMethod == 1)
             odom_intmethod.int_method.data = "rk";
 
+        prev_time = curr_time;
+
         tb.sendTransform(transformStamped);
         odompub.publish(scout_odom);
         custompub.publish(odom_intmethod);
@@ -130,11 +134,9 @@ public:
 
     void computeOdom()
     {
-        curr_time = scout_odom.header.stamp;
         DT = curr_time.toSec() - prev_time.toSec();
         if(DT<0 && curr_time.toSec()>0)
             ROS_WARN("Time going backwards when computing odometry");
-        prev_time = curr_time;
 
         if (integrationMethod == 0)
         {
