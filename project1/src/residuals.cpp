@@ -11,13 +11,13 @@
 
 #define PI 3.14159265359
 // here are the parameter for rotrotranslation from world to odom
-#define GT_X_OFFSET -0.6683338288
-#define GT_Y_OFFSET -0.0377706864
-#define GT_Z_OFFSET  0.3290136176
-#define GT_X_Q_ROT  -0.0079870560
-#define GT_Y_Q_ROT   0.0181781832
-#define GT_Z_Q_ROT  -0.6260676536
-#define GT_W_Q_ROT   0.7795158906
+#define GT_X_OFFSET -0.567088690
+#define GT_Y_OFFSET -0.000009709 
+#define GT_Z_OFFSET 0.319372658 
+#define GT_X_Q_ROT  -0.013766332 
+#define GT_Y_Q_ROT  0.013325286 
+#define GT_Z_Q_ROT  -0.554693347 
+#define GT_W_Q_ROT  0.831834248    
 
 // filter 
 #define ERROR_FILTER_LENGTH 100
@@ -262,6 +262,7 @@ public:
         dy_gt = our_odom->pose.pose.position.y - gt_pose->pose.position.y;
         dtheta_gt = remainder(our_yaw, (2*PI)) - remainder(gt_yaw, (2*PI));
         dtheta_gt = remainder(dtheta_gt, (2*PI));
+        dtheta_gt += 13.5*PI/180; // we remove theta offset
         if (dtheta_gt > PI)
             dtheta_gt -= 2*PI;
 

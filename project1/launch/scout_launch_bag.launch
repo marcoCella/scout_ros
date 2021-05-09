@@ -1,0 +1,9 @@
+<launch>
+
+<include file="$(find project1)/launch/scout_launch.launch" />
+
+<!-- Run the bag -->
+<arg name = "bag_file_name" value = "bag1"/>
+<node pkg = "rosbag" type = "play" name = "rosbag_play" output = "screen" args = "--clock --rate 1 $(find project1)/bags/$(arg bag_file_name).bag"/>
+
+</launch>

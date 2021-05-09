@@ -96,9 +96,10 @@ Set service:   rosservice call /set_odom x y theta
 
 
 APPENDIX - APPARENT BASELINE AND TRANSMISSION RATIO
-Both parameters have been estimated following a heuristic function comparing the estimated velocities values 
-with the ground truth ones. For the transmission ratio we've used the values of the longitudinal velocity vx, 
-whereas for the apparent baseline we've used the angular velocity wz.
+in order to find the parameters to match /scout_odom, we used the following heuristic function: we
+compared the estimated velocities values with the ground truth ones. For the transmission ratio
+we've used the values of the longitudinal velocity vx, whereas for the apparent baseline we've used
+the angular velocity wz.
 The best values we've found are the following:
 - Transmission ratio: 1:38.7
 - Apparent baseline:  1.75 * B
@@ -107,19 +108,40 @@ To have a quantitative assessment of how we were improving when changing the par
 the residuals node moentioned above: the cumulateError is a filtered error, which means that it is the
 average of the last 100 quadratic errors. Each quadratic error is the square root of the sum of the square
 of deltaX, deltaY, deltaTheta (each multiplied by a particular quadratic weight).
-In IMG1.png we show the cumulateError (on the left), deltaY over deltaX error on the top right, and deltaTheta
-(in rad) over time on the bottom right.
+In particular for the errors wrt /scout_odom an error of 1 cm is weighted as 60 degrees, while for the errors
+wrt /gt_pose 1 cm weights as 120 deg (since the orientation measurement was not smooth and had an offset problem
+mentioned below).
 
-We also considered /gt_pose and its errors. METTERE QUI UN COMMENTO SE CI RIUSCIAMO
-In IMG2.png we show the same graphs for the errors with respect to /gt_pose.
+To find the parameters to match /gt_pose we also had to find the rototranslation from world to odom and find an
+orientation offset of /gt_pose with respect to its trajectory (see below). Since we did not have any velocities we
+used the following heuristic function: we started from the prevoìius values and decreased the transmission ratio to
+match /gt_pose velocity, and then we decreased the apparent baseline so that the curves had a smaller radius (greater
+curvature)
+We obtained the following results:
+- Transmission ratio: 1:40.0
+- Apparent baseline:  1.64 * B
+
+In the pdf Results.pdf we show some images of the process.
 
 APPENDIX - "odom" TO "world" ROTOTRANSLATION
-To compute this rototranslation we copied 2 messages with rostopic echo from /scout_odom and /gt_pose
-/gt_pose is not accurate in the first seconds, so we waited for some seconds (about 10-11s) and as
+To compute this rototranslation we copied 2 messages with rostopic echo from /scout_odom and /gt_pose.
+/gt_pose is not accurate in the first seconds, so we waited for some seconds (about 16s) and as
 soon as we saw a coherent /gt_pose we copied its pose and the corresponding /scout_odom pose.
 We assume that at the beginning /scout_odom is correct, so we can use its pose as reference to
-find the rototranslation from odom (frame_id of /scout_odom) and world (frame id of /gt_pose)
-This has been computed in MATLAB (in the script rototranslation.m)
+find the rototranslation from "odom" (frame_id of /scout_odom) and "world" (frame id of /gt_pose)
+This has been computed in MATLAB (in the script rototranslation.m).
+Doing so we noticed that there was an inconsistency between the /gt_pose theta orientation and the
+direction of motion of /gt_pose, as if the orientation vector were not indicating the motion direction
+(so it was not tangent to the trajectory).As a matter of fact, the orientation was very accurate but the trajectory
+seemed to have a different rotation. We made the hypothesis that the orientation field in /gt_pose could
+have an offset wrt the motion of the robot. We tuned CHI, Inv_RATIO, the rotation of the trajectory (so
+the rotation from "world" to "odom") and the constant offset of the orientation of /gt_pose.
+We noticed that this offset was very consistent (in the first 60 seconds of simulation it is alomost
+constant), and was about 13.5 degrees.
+Therefore we fixed the reference system accordingly (and we removed this offset in the residuals node when
+computing the difference between /gt_pose orientation and our computed orientation).
+In the end the world reference frame has a yaw rotation of about 67 deg with respect to odom frame, and
+/gt_pose has an orientation offset of about 13.5 degrees wrt its trajectory.
 
 
 
