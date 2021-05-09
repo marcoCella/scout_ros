@@ -38,7 +38,8 @@ FILES
     - odompubsub.cpp -> the node that subscribes to the topic advertised by velpubsub
                         and publishes the complete odometry and the custom message
 
-    - residuals.cpp -> the node that publishes the residuals between the ground truth and the estimated odometry
+    - residuals.cpp -> the node publishes the residuals between /scout_odom and our computed odometry /our_odom
+                        and also the residuals between /gt_pose (in odom reference frame) and /our_odom
 
 - scout_rviz.rviz -> rviz configuration to visualize the computed odometry vs the ground truth
 
@@ -47,10 +48,14 @@ ROS PARAMETERS
 - x_init:     initial x position in the odom frame
 - y_init:     initial y position in the odom frame
 - theta_init: initial yaw angle wrt the odom frame
+- CHI :       ratio between apparent and real base_line
+- Inv_RATIO:  1/ratio of the gearbox
 
 TF TREE:
 - odom
     - base_link
+    - world (static transform)
+
 
 
 CUSTOM MESSAGES
@@ -62,7 +67,7 @@ CUSTOM MESSAGES
     - std_msgs/Float64 dx
     - std_msgs/Float64 dy
     - std_msgs/Float64 dtheta
-    - std_msgs/Float64 dtot
+    - std_msgs/Float64 cumulateError
       
 
 HOW TO RUN EVERYTHING
@@ -98,8 +103,23 @@ The best values we've found are the following:
 - Transmission ratio: 1:38.7
 - Apparent baseline:  1.75 * B
 
+To have a quantitative assessment of how we were improving when changing the parameters, we used plotJuggler
+the residuals node moentioned above: the cumulateError is a filtered error, which means that it is the
+average of the last 100 quadratic errors. Each quadratic error is the square root of the sum of the square
+of deltaX, deltaY, deltaTheta (each multiplied by a particular quadratic weight).
+In IMG1.png we show the cumulateError (on the left), deltaY over deltaX error on the top right, and deltaTheta
+(in rad) over time on the bottom right.
 
+We also considered /gt_pose and its errors. METTERE QUI UN COMMENTO SE CI RIUSCIAMO
+In IMG2.png we show the same graphs for the errors with respect to /gt_pose.
 
+APPENDIX - "odom" TO "world" ROTOTRANSLATION
+To compute this rototranslation we copied 2 messages with rostopic echo from /scout_odom and /gt_pose
+/gt_pose is not accurate in the first seconds, so we waited for some seconds (about 10-11s) and as
+soon as we saw a coherent /gt_pose we copied its pose and the corresponding /scout_odom pose.
+We assume that at the beginning /scout_odom is correct, so we can use its pose as reference to
+find the rototranslation from odom (frame_id of /scout_odom) and world (frame id of /gt_pose)
+This has been computed in MATLAB (in the script rototranslation.m)
 
 
 

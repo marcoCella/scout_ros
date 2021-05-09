@@ -10,17 +10,49 @@
 #include <message_filters/sync_policies/approximate_time.h>
 
 #define PI 3.14159265359
+// here are the parameter for rotrotranslation from world to odom
+#define GT_X_OFFSET -0.6683338288
+#define GT_Y_OFFSET -0.0377706864
+#define GT_Z_OFFSET  0.3290136176
+#define GT_X_Q_ROT  -0.0079870560
+#define GT_Y_Q_ROT   0.0181781832
+#define GT_Z_Q_ROT  -0.6260676536
+#define GT_W_Q_ROT   0.7795158906
+
+// filter 
+#define ERROR_FILTER_LENGTH 100
+
+// the initial points will not be considered to compute the errors
+#define GT_NOT_CONSIDERED_MSGS 41
+#define  OD_NOT_CONSIDERED_MSGS 5
+   
 
 using OD = nav_msgs::Odometry;
 using GT = geometry_msgs::PoseStamped;
+
+
+/* This node does the following things:
+  - subscribes to /scout_odom and republishes with the current ros time in /od_real_time 
+  - subscribes to /gt_pose it translates and rotates the reference system (from world to odom) and republishes
+    with the current ros time in /gt_real_time 
+  - uses a filter to match messages from /our_odom (the odometry we compute) and from /od_real_time and computes the
+    errors (in particular it computes deltaX, deltaY, deltaTheta and a cumulate error)
+    cumulateError is a filtered error, which means that it is the average of the last ERROR_FILTER_LENGTH quadratic
+    errors. Each quadratic error is the square root of the sum of the square of deltaX, deltaY, deltaTheta (each
+    multiplied by a particular quadratic weight)
+  - uses a filter to match messages from /our_odom (the odometry we compute) and from /gt_real_time and computes the
+    errors
+  - publishes the errors in two different topics: /residuals_od for the errors wrt the /scout_odom pose and /residuals_gt
+    for the errors wrt the /gt_pose pose
+*/
 
 class residual
 {
 private:
     ros::NodeHandle n;
 
-    project1::er_array od_error_array;
-    project1::er_array gt_error_array;
+    project1::er_array od_error_array; // errors for /scout_odom
+    project1::er_array gt_error_array; // errors for /gt_pose
 
     message_filters::Subscriber<OD> our_odom_sub;
     message_filters::Subscriber<OD> scout_odom_resampled_sub;
@@ -36,12 +68,25 @@ private:
 
     OD real_time_od;
     GT real_time_gt;
+    GT prev_gt; // used since many messages are equal and so will be discarded
+    OD prev_od;
+
+    // errors
     double dx_od, dy_od, dtheta_od, cumulateError_od;
     double dx_gt, dy_gt, dtheta_gt, cumulateError_gt;
 
-    double gt_theta_offset, gt_x_offset, gt_y_offset, gt_map_rotation;
-    int not_considered_messages = 935;
-    int gt_msg_counter = 0;
+    // here are the vectors used to store previous sum of errors (so that we can filter them)
+    double lastErrors_od[ERROR_FILTER_LENGTH] = {};
+    double lastErrors_gt[ERROR_FILTER_LENGTH] = {};
+
+    // incoming message counters
+    int gt_msg_counter = 0; int od_msg_counter = 0;
+
+    // here are the variables used to rototranslate from wolrd ref to odom ref
+    double temp_x, temp_y, temp_z;
+    // quaternion to rot matrix
+    tf::Quaternion gtTOsc_quat;
+    tf::Matrix3x3 gtTOsc_rot; 
 
 public:
     ros::Publisher pub_od;      // publishes the errors /scout_odom - /our_odom
@@ -72,65 +117,56 @@ public:
         sync_gt.reset(new Sync_gt(SyncPolicy_gt(100), gt_pose_resampled_sub, our_odom_sub));
         sync_gt->registerCallback(boost::bind(&residual::gt_error_callback, this, _1, _2));
 
-        if (n.hasParam("/gt_theta_offset"))
-            n.getParam("/gt_theta_offset", gt_theta_offset);
-        else
-            gt_theta_offset = -281.97f;
-        
-        if (n.hasParam("/gt_x_offset"))
-            n.getParam("/gt_x_offset", gt_x_offset);
-        else
-            gt_x_offset = -0.6840248f;
-
-        if (n.hasParam("/gt_y_offset"))
-            n.getParam("/gt_y_offset", gt_y_offset);
-        else
-            gt_y_offset =  0.5007557f;
-
-        if (n.hasParam("/gt_map_rotation"))
-            n.getParam("/gt_map_rotation", gt_map_rotation);
-        else
-            gt_y_offset =  -64.484f;
-
-        cumulateError_od = 0;
-        cumulateError_gt = 0;
+        gtTOsc_quat.setX(GT_X_Q_ROT);
+        gtTOsc_quat.setY(GT_Y_Q_ROT);
+        gtTOsc_quat.setZ(GT_Z_Q_ROT);
+        gtTOsc_quat.setW(GT_W_Q_ROT);
+        tf::Matrix3x3 tmp_mat(gtTOsc_quat);
+        gtTOsc_rot = tmp_mat;        
     }
 
     void od_repub_callback(const OD::ConstPtr &scout_odom)
     {
+        // if the position hasn't changed since the last "good" message, we will not publish any new message
+        if ( od_msg_counter != 0 && pow(prev_od.pose.pose.position.x-scout_odom->pose.pose.position.x, 2.0)+pow(prev_od.pose.pose.position.y-scout_odom->pose.pose.position.x, 2.0) < 0.00001 )
+            return;
+        
+        prev_od = *scout_odom;
         real_time_od = *scout_odom;
         real_time_od.header.stamp = ros::Time::now(); //real time is the same as scout but with header "now"
+
+        od_msg_counter++;
 
         od_mirror.publish(real_time_od);
     }
 
-    void gt_repub_callback(const GT::ConstPtr &gt_pose)
+    void gt_repub_callback(const GT::ConstPtr& gt_pose)
     {
+        // if the position hasn't changed since the last "good" message, we will not publish any new message
+        if ( gt_msg_counter != 0 && pow(prev_gt.pose.position.x-gt_pose->pose.position.x, 2.0)+pow(prev_gt.pose.position.y-gt_pose->pose.position.y, 2.0) < 0.00001 )
+            return;
+        
+        prev_gt = *gt_pose;
         real_time_gt = *gt_pose;
         real_time_gt.header.frame_id = "odom";
 
-        // we offset and rotate x and y
-        real_time_gt.pose.position.x =  gt_pose->pose.position.x*cos(gt_map_rotation*PI/180) - gt_pose->pose.position.y*sin(gt_map_rotation*PI/180) + gt_x_offset;
-        real_time_gt.pose.position.y =  gt_pose->pose.position.x*sin(gt_map_rotation*PI/180) + gt_pose->pose.position.y*cos(gt_map_rotation*PI/180) + gt_y_offset;
+        // Now we rototranslate /gt_pose from world to odom
 
-        //quaternion to RPY
-        tf::Quaternion temp_quaternion(
-            gt_pose->pose.orientation.x,
-            gt_pose->pose.orientation.y,
-            gt_pose->pose.orientation.z,
-            gt_pose->pose.orientation.w);
-        tf::Matrix3x3 gt_matrix(temp_quaternion);
-        double roll, pitch, yaw;
-        gt_matrix.getRPY(roll, pitch, yaw);
+        // we offset xyz
+        temp_x = gt_pose->pose.position.x - GT_X_OFFSET;
+        temp_y = gt_pose->pose.position.y - GT_Y_OFFSET;
+        temp_z = gt_pose->pose.position.z - GT_Z_OFFSET;       
 
-        // we offset theta
-        yaw -= gt_theta_offset*PI/180;
-        temp_quaternion.setRPY(roll, pitch, yaw);
+        // we rotatate the gt_pose pose
+        real_time_gt.pose.position.x = gtTOsc_rot[0][0]*temp_x+gtTOsc_rot[0][1]*temp_y+gtTOsc_rot[0][2]*temp_z;
+        real_time_gt.pose.position.y = gtTOsc_rot[1][0]*temp_x+gtTOsc_rot[1][1]*temp_y+gtTOsc_rot[1][2]*temp_z;
+        real_time_gt.pose.position.z = gtTOsc_rot[2][0]*temp_x+gtTOsc_rot[2][1]*temp_y+gtTOsc_rot[2][2]*temp_z;
 
-        real_time_gt.pose.orientation.x = temp_quaternion.x();
-        real_time_gt.pose.orientation.y = temp_quaternion.y();
-        real_time_gt.pose.orientation.z = temp_quaternion.z();
-        real_time_gt.pose.orientation.w = temp_quaternion.w();
+        // we rotate the gt_pose quaternion
+        real_time_gt.pose.orientation.x = gtTOsc_quat.x()*gt_pose->pose.orientation.w + gtTOsc_quat.w()*gt_pose->pose.orientation.x + gtTOsc_quat.y()*gt_pose->pose.orientation.z - gtTOsc_quat.z()*gt_pose->pose.orientation.y;   // x component
+        real_time_gt.pose.orientation.y = gtTOsc_quat.w()*gt_pose->pose.orientation.y - gtTOsc_quat.x()*gt_pose->pose.orientation.z + gtTOsc_quat.y()*gt_pose->pose.orientation.w + gtTOsc_quat.z()*gt_pose->pose.orientation.x;   // y component
+        real_time_gt.pose.orientation.z = gtTOsc_quat.w()*gt_pose->pose.orientation.z + gtTOsc_quat.x()*gt_pose->pose.orientation.y - gtTOsc_quat.y()*gt_pose->pose.orientation.x + gtTOsc_quat.z()*gt_pose->pose.orientation.w;   // z component
+        real_time_gt.pose.orientation.w = gtTOsc_quat.w()*gt_pose->pose.orientation.w - gtTOsc_quat.x()*gt_pose->pose.orientation.x - gtTOsc_quat.y()*gt_pose->pose.orientation.y - gtTOsc_quat.z()*gt_pose->pose.orientation.z;   // w component
 
         //real time is the same as scout but with header "now"
         real_time_gt.header.stamp = ros::Time::now();
@@ -168,12 +204,34 @@ public:
         dtheta_od = remainder(dtheta_od, (2*PI));
         if (dtheta_od > PI)
             dtheta_od -= 2*PI;
-        cumulateError_od += sqrt(10000.0f*pow(dx_od, 2.0f) + 10000.0f*pow(dy_od, 2.0f) + pow(6/PI, 2.0f)*pow(dtheta_od, 2.0f));
 
-        od_error_array.dx.data = dx_od;
-        od_error_array.dy.data = dy_od;
-        od_error_array.dtheta.data = dtheta_od;
-        od_error_array.cumulateError.data = cumulateError_od;
+        if (od_msg_counter < OD_NOT_CONSIDERED_MSGS)
+        {
+            cumulateError_od = 0.0;
+
+            od_error_array.dx.data = 0.0;
+            od_error_array.dy.data = 0.0;
+            od_error_array.dtheta.data = 0.0;
+            od_error_array.cumulateError.data = 0.0;
+        }
+        else
+        {
+            for(int i = 1; i < ERROR_FILTER_LENGTH; i++)
+                lastErrors_od[i-1] = lastErrors_od[i];
+            
+            lastErrors_od[ERROR_FILTER_LENGTH-1] = sqrt(10000.0f*pow(dx_od, 2.0f) + 10000.0f*pow(dy_od, 2.0f) + pow(6/PI, 2.0f)*pow(dtheta_od, 2.0f));
+            
+            cumulateError_od = 0;
+            for(int i = 0; i < ERROR_FILTER_LENGTH; i++)
+                cumulateError_od += lastErrors_od[i];
+            cumulateError_od = cumulateError_od / (float) ERROR_FILTER_LENGTH;
+
+            od_error_array.dx.data = dx_od;
+            od_error_array.dy.data = dy_od;
+            od_error_array.dtheta.data = dtheta_od;
+            od_error_array.cumulateError.data = cumulateError_od;
+        }
+        
 
         pub_od.publish(od_error_array);
     }
@@ -203,12 +261,12 @@ public:
         dx_gt = our_odom->pose.pose.position.x - gt_pose->pose.position.x;
         dy_gt = our_odom->pose.pose.position.y - gt_pose->pose.position.y;
         dtheta_gt = remainder(our_yaw, (2*PI)) - remainder(gt_yaw, (2*PI));
-        dtheta_gt = remainder(dtheta_od, (2*PI));
+        dtheta_gt = remainder(dtheta_gt, (2*PI));
         if (dtheta_gt > PI)
             dtheta_gt -= 2*PI;
 
         
-        if(gt_msg_counter < not_considered_messages)
+        if(gt_msg_counter < GT_NOT_CONSIDERED_MSGS)
         {
             cumulateError_gt = 0;
             gt_error_array.dx.data = 0;
@@ -218,11 +276,20 @@ public:
         }
         else
         {
-            cumulateError_gt += sqrt(10000.0f*pow(dx_gt, 2.0f) + 10000.0f*pow(dy_gt, 2.0f) + 0.25*pow(6/PI, 2.0f)*pow(dtheta_gt, 2.0f));
-            gt_error_array.dx.data = dx_od;
-            gt_error_array.dy.data = dy_od;
-            gt_error_array.dtheta.data = dtheta_od;
-            gt_error_array.cumulateError.data = cumulateError_od;
+            for(int i = 1; i < ERROR_FILTER_LENGTH; i++)
+                lastErrors_gt[i-1] = lastErrors_gt[i];
+        
+            lastErrors_gt[ERROR_FILTER_LENGTH-1] = sqrt(10000.0f*pow(dx_gt, 2.0f) + 10000.0f*pow(dy_gt, 2.0f) + 0.25*pow(6/PI, 2.0f)*pow(dtheta_gt, 2.0f));
+        
+            cumulateError_gt = 0;
+            for(int i = 0; i < ERROR_FILTER_LENGTH; i++)
+                cumulateError_gt += lastErrors_gt[i];
+            cumulateError_gt = cumulateError_gt / (float) ERROR_FILTER_LENGTH;
+            
+            gt_error_array.dx.data = dx_gt;
+            gt_error_array.dy.data = dy_gt;
+            gt_error_array.dtheta.data = dtheta_gt;
+            gt_error_array.cumulateError.data = cumulateError_gt;
         }
 
         pub_gt.publish(gt_error_array);

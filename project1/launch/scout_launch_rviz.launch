@@ -2,11 +2,10 @@
  
 <rosparam param="CHI">     1.75 </rosparam>
 <rosparam param="Inv_RATIO">     38.7 </rosparam>
-<rosparam param="gt_x_offset">     0.2037 </rosparam>
-<rosparam param="gt_y_offset">      -0.6884 </rosparam>
-<rosparam param="gt_theta_offset">     78.03 </rosparam>
-<rosparam param="gt_map_rotation">     -64.484 </rosparam>
- <!-- offset is in deg -->
+
+<node pkg="tf" type="static_transform_publisher" name="toworld" args="0.16821159 -0.6409790 -0.34234114 -0.0079871 0.018178 -0.62607 0.77952 odom world 100" />
+<!-- node pkg="tf" type="static_transform_publisher" name="toworld" args="-0.6683338 -0.0377706 0.32901361757 0.0079871 -0.018178 0.62607 0.77952 world odom 100" -->
+
 
  <!-- Run  the node that reads the wheels velocities from the bag and publishes the Twist message -->
 <node pkg = "project1" name = "velpubsub" type = "velpubsub" output="screen" />
