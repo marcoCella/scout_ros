@@ -1,39 +1,30 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <root version="2.3.8">
- <tabbed_widget parent="main_window" name="Main Window">
-  <Tab tab_name="tab4" containers="1">
+ <tabbed_widget name="Main Window" parent="main_window">
+  <Tab containers="1" tab_name="tab1">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
-      <DockSplitter orientation="-" count="2" sizes="0.500707;0.499293">
+    <DockSplitter sizes="1" orientation="-" count="1">
+     <DockSplitter sizes="0.5;0.5" orientation="|" count="2">
+      <DockArea name="...">
+       <plot mode="TimeSeries" style="Lines">
+        <range left="5.315392" bottom="-0.138320" top="5.671102" right="20.712288"/>
+        <limitY/>
+        <curve color="#05ff00" name="/residuals_gt/cumulateError/data"/>
+       </plot>
+      </DockArea>
+      <DockSplitter sizes="0.500602;0.499398" orientation="-" count="2">
        <DockArea name="...">
-        <plot style="Lines" mode="TimeSeries">
-         <range right="1757.075916" top="0.100000" left="1753.688622" bottom="-0.100000"/>
+        <plot mode="XYPlot" style="Lines">
+         <range left="-0.254163" bottom="-0.109703" top="0.056991" right="0.137751"/>
          <limitY/>
-         <curve color="#9467bd" name="/residual/dx/data"/>
+         <curve color="#ff7f0e" name="/residuals_gt/d[x/data;y/data]" curve_x="/residuals_gt/dx/data" curve_y="/residuals_gt/dy/data"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot style="Lines" mode="TimeSeries">
-         <range right="1757.075916" top="0.100000" left="1753.688622" bottom="-0.100000"/>
+        <plot mode="TimeSeries" style="Lines">
+         <range left="5.315392" bottom="-0.495765" top="0.012092" right="20.712288"/>
          <limitY/>
-         <curve color="#f14cc1" name="/residual/dy/data"/>
-        </plot>
-       </DockArea>
-      </DockSplitter>
-      <DockSplitter orientation="-" count="2" sizes="0.500707;0.499293">
-       <DockArea name="...">
-        <plot style="Lines" mode="TimeSeries">
-         <range right="1757.075916" top="0.100000" left="1753.688622" bottom="-0.100000"/>
-         <limitY/>
-         <curve color="#17becf" name="/residual/dtheta/data"/>
-        </plot>
-       </DockArea>
-       <DockArea name="...">
-        <plot style="Lines" mode="TimeSeries">
-         <range right="1757.075916" top="0.000000" left="1753.688622" bottom="0.000000"/>
-         <limitY min="0"/>
-         <curve color="#bcbd22" name="/residual/cumulateError/data"/>
+         <curve color="#00e2ff" name="/residuals_gt/dtheta/data"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -41,79 +32,86 @@
     </DockSplitter>
    </Container>
   </Tab>
-  <Tab tab_name="tab2" containers="1">
+  <Tab containers="1" tab_name="tab2">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+    <DockSplitter sizes="1" orientation="-" count="1">
+     <DockSplitter sizes="0.5;0.5" orientation="|" count="2">
       <DockArea name="...">
-       <plot style="Lines" mode="XYPlot">
-        <range right="2.647123" top="-3.325196" left="-0.019463" bottom="-6.663893"/>
+       <plot mode="TimeSeries" style="Lines">
+        <range left="4.519565" bottom="-0.270892" top="11.106558" right="20.742411"/>
         <limitY/>
-        <curve curve_x="/our_odom/pose/position/x" curve_y="/our_odom/pose/position/y" color="#1f77b4" name="/our_odom/pose/position/[x;y]"/>
-        <curve curve_x="/real_time_odom/pose/position/x" curve_y="/real_time_odom/pose/position/y" color="#d62728" name="/real_time_odom/pose/position/[x;y]"/>
+        <curve color="#05ff00" name="/residuals_od/cumulateError/data"/>
+       </plot>
+      </DockArea>
+      <DockSplitter sizes="0.500602;0.499398" orientation="-" count="2">
+       <DockArea name="...">
+        <plot mode="XYPlot" style="Lines">
+         <range left="-0.151878" bottom="-0.034319" top="0.067749" right="0.088093"/>
+         <limitY/>
+         <curve color="#ff7f0e" name="/residuals_od/d[x/data;y/data]" curve_x="/residuals_od/dx/data" curve_y="/residuals_od/dy/data"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot mode="TimeSeries" style="Lines">
+         <range left="4.519565" bottom="-0.104726" top="0.016892" right="20.742411"/>
+         <limitY/>
+         <curve color="#00e2ff" name="/residuals_od/dtheta/data"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab containers="1" tab_name="tab3">
+   <Container>
+    <DockSplitter sizes="1" orientation="-" count="1">
+     <DockSplitter sizes="0.5;0.5" orientation="|" count="2">
+      <DockArea name="...">
+       <plot mode="XYPlot" style="Lines">
+        <range left="-0.673509" bottom="-1.515609" top="0.245028" right="1.142222"/>
+        <limitY/>
+        <curve color="#ff5800" name="/our_odom/pose/position/[x;y]" curve_x="/our_odom/pose/position/x" curve_y="/our_odom/pose/position/y"/>
+        <curve color="#00e2ff" name="/real_time_gt/position/[x;y]" curve_x="/real_time_gt/position/x" curve_y="/real_time_gt/position/y"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot style="Lines" mode="TimeSeries">
-        <range right="2004.748486" top="294.551916" left="1989.740036" bottom="82.602912"/>
+       <plot mode="TimeSeries" style="Lines">
+        <range left="0.000000" bottom="-8.999956" top="368.998209" right="20.759310"/>
         <limitY/>
-        <curve color="#f14cc1" name="Rescaled_odom_yaw_deg"/>
-        <curve color="#9467bd" name="Rescaled_our_odom_yaw_deg"/>
+        <curve color="#ff5800" name="our_theta_360"/>
+        <curve color="#00e2ff" name="gt_theta_360"/>
        </plot>
       </DockArea>
      </DockSplitter>
     </DockSplitter>
    </Container>
   </Tab>
-  <Tab tab_name="tab3" containers="1">
+  <Tab containers="1" tab_name="tab4">
    <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+    <DockSplitter sizes="1" orientation="-" count="1">
+     <DockSplitter sizes="0.5;0.5" orientation="|" count="2">
       <DockArea name="...">
-       <plot style="Lines" mode="TimeSeries">
-        <range right="-998.728322" top="0.351586" left="-1003.727842" bottom="0.158963"/>
+       <plot mode="XYPlot" style="Lines">
+        <range left="-0.679132" bottom="-1.534254" top="0.037469" right="0.941774"/>
         <limitY/>
-        <curve color="#17becf" name="/real_time_odom/twist/linear/x"/>
-        <curve color="#bcbd22" name="/our_odom/twist/linear/x"/>
+        <curve color="#ff5800" name="/our_odom/pose/position/[x;y]" curve_x="/our_odom/pose/position/x" curve_y="/our_odom/pose/position/y"/>
+        <curve color="#05ff00" name="/real_time_od/pose/position/[x;y]" curve_x="/real_time_od/pose/position/x" curve_y="/real_time_od/pose/position/y"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot style="Lines" mode="TimeSeries">
-        <range right="-998.728322" top="0.015416" left="-1003.727842" bottom="-0.544327"/>
+       <plot mode="TimeSeries" style="Lines">
+        <range left="0.000000" bottom="-8.999999" top="368.999971" right="20.759310"/>
         <limitY/>
-        <curve color="#1ac938" name="/real_time_odom/twist/angular/z"/>
-        <curve color="#9467bd" name="/our_odom/twist/angular/z"/>
+        <curve color="#ff5800" name="our_theta_360"/>
+        <curve color="#05ff00" name="scout_theta_360"/>
        </plot>
       </DockArea>
      </DockSplitter>
     </DockSplitter>
    </Container>
   </Tab>
-  <Tab tab_name="tab1" containers="1">
-   <Container>
-    <DockSplitter orientation="-" count="1" sizes="1">
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
-      <DockArea name="...">
-       <plot style="Lines" mode="TimeSeries">
-        <range right="-1523.054877" top="3000.000000" left="-1528.035281" bottom="-3000.000000"/>
-        <limitY min="-3000" max="3000"/>
-        <curve color="#1f77b4" name="/motor_speed_fl/rpm"/>
-        <curve color="#d62728" name="/motor_speed_rl/rpm"/>
-       </plot>
-      </DockArea>
-      <DockArea name="...">
-       <plot style="Lines" mode="TimeSeries">
-        <range right="-1523.428145" top="3000.000000" left="-1524.814250" bottom="-3000.000000"/>
-        <limitY min="-3000" max="3000"/>
-        <curve color="#1ac938" name="/motor_speed_rr/rpm"/>
-        <curve color="#ff7f0e" name="/motor_speed_fr/rpm"/>
-       </plot>
-      </DockArea>
-     </DockSplitter>
-    </DockSplitter>
-   </Container>
-  </Tab>
-  <currentTabIndex index="1"/>
+  <currentTabIndex index="2"/>
  </tabbed_widget>
  <use_relative_time_offset enabled="1"/>
  <!-- - - - - - - - - - - - - - - -->
@@ -147,15 +145,20 @@
  <previouslyLoaded_Streamer name="ROS Topic Subscriber"/>
  <!-- - - - - - - - - - - - - - - -->
  <customMathEquations>
-  <snippet name="Rescaled_our_odom_yaw_deg">
+  <snippet name="our_theta_360">
    <global></global>
    <function>return value%360</function>
    <linkedSource>/our_odom/pose/orientation/yaw_deg</linkedSource>
   </snippet>
-  <snippet name="Rescaled_odom_yaw_deg">
+  <snippet name="scout_theta_360">
    <global></global>
    <function>return value%360</function>
-   <linkedSource>/real_time_odom/pose/orientation/yaw_deg</linkedSource>
+   <linkedSource>/real_time_od/pose/orientation/yaw_deg</linkedSource>
+  </snippet>
+  <snippet name="gt_theta_360">
+   <global></global>
+   <function>return value%360</function>
+   <linkedSource>/real_time_gt/orientation/yaw_deg</linkedSource>
   </snippet>
  </customMathEquations>
  <snippets/>
