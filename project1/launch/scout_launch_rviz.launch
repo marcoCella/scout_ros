@@ -1,11 +1,7 @@
 <launch>
  
- <include file="$(find project1)/launch/scout_launch.launch" />
+<include file="$(find project1)/launch/scout_launch.launch" />
  
-<!-- Run the bag -->
-<arg name = "bag_file_name" value = "bag1"/>
-<node pkg = "rosbag" type = "play" name = "rosbag_play" output = "screen" args = "--clock $(find project1)/bags/$(arg bag_file_name).bag"/>
-
 <!-- Run rviz -->
 <arg  name="rvizconfig" default="$(find project1)/config/scout_rviz.rviz" />
 <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
