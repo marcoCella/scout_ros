@@ -4,6 +4,6 @@
 
 <!-- Run the bag -->
 <arg name = "bag_file_name" value = "2"/>
-<node pkg = "rosbag" type = "play" name = "rosbag_play" output = "screen" args = "--clock --rate 2 $(find project2)/bag_folder/$(arg bag_file_name).bag"/>
+<node pkg = "rosbag" type = "play" name = "rosbag_play" output = "screen" args = "--clock --rate 1 $(find project2)/bag_folder/$(arg bag_file_name).bag"/>
 
 </launch>
