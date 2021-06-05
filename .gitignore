@@ -48,7 +48,7 @@ qtcreator-*
 .#*
 
 .vscode
-project2/bag_folder/**
+project2/bag_folder/*.bag
 
 # Catkin custom files
 CATKIN_IGNORE
