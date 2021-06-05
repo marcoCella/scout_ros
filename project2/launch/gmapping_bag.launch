@@ -1,0 +1,11 @@
+<launch>
+
+<include file="$(find project2)/launch/gmapping.launch" />
+
+<!-- Run the bag -->
+<arg name = "bag_file_name" value = "1"/>
+<node pkg = "rosbag" type = "play" name = "rosbag_play" output = "screen" args = "--clock --rate 1 $(find project2)/bag_folder/$(arg bag_file_name).bag"/>
+
+</launch>
+
+<!-- rosrun map_server map_saver -f /project2/data/  -->

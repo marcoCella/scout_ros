@@ -1,0 +1,65 @@
+<launch>
+  <arg name="base"       default="kobuki"/>  <!-- create, rhoomba -->
+  <arg name="stacks"     default="hexagons"/>  <!-- circles, hexagons -->
+  <arg name="3d_sensor"  default="asus_xtion_pro"/>  <!-- kinect, asus_xtion_pro -->
+
+  <!-- Name of the map to use and initial position -->
+  <arg name="world_file"     default="$(find nav2d_conf)/maps/stage/maze2.world"/>
+
+  <arg name="odom_frame_id"   default="odom"/>
+  <arg name="global_frame_id" default="map"/>
+
+  <param name="/use_sim_time" value="true"/>
+
+
+ <!--  ***************** Robot simulation *****************  -->
+  <node pkg="stage_ros" type="stageros" name="stageros" args="$(arg world_file)">
+    <param name="base_watchdog_timeout" value="0.5"/>
+    <remap from="base_scan" to="scan"/>
+  </node>
+
+
+  <!--  ***************** Robot Model *****************  -->
+  <include file="$(find turtlebot_bringup)/launch/includes/robot.launch.xml">
+    <arg name="base" value="$(arg base)" />
+    <arg name="stacks" value="$(arg stacks)" />
+    <arg name="3d_sensor" value="$(arg 3d_sensor)" />
+  </include>
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="false"/>
+  </node>
+
+
+  <!--  ************** Navigation  ***************  -->
+   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find nav2d_conf)/cfg/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find nav2d_conf)/cfg/costmap_common_params.yaml" command="load" ns="local_costmap" />   
+    <rosparam file="$(find nav2d_conf)/cfg/local_costmap_params.yaml" command="load" />   
+    <rosparam file="$(find nav2d_conf)/cfg/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find nav2d_conf)/cfg/dwa_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find nav2d_conf)/cfg/move_base_params.yaml" command="load" /> 
+
+    <param name="base_global_planner" value="navfn/NavfnROS" />
+    <param name="planner_frequency" value="1.0" />
+    <param name="planner_patience" value="10.0" />
+
+    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
+    <param name="controller_frequency" value="5.0" />
+    <param name="controller_patience" value="5.0" />
+
+    <param name="clearing_rotation_allowed" value="true"/> 
+  </node>
+
+
+
+ <!-- Gmapping -->
+  <include file="$(find nav2d_conf)/launch/gmapping.launch.xml"/>
+
+
+
+
+
+  <!--  **************** Visualisation ****************  -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find nav2d_conf)/rviz/robot_navigation.rviz"/>
+</launch>
+

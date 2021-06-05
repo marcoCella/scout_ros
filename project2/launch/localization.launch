@@ -1,0 +1,24 @@
+<launch>
+
+    <param name="/use_sim_time" value="true"/>
+    
+    <arg name="map_file" default="$(find project2)/data/map1.yaml"/>
+
+    <include file="$(find project2)/launch/transforms2.launch"/>
+
+      <!--  ****** Maps *****  -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)">
+        <param name="frame_id" value="map"/>
+    </node>
+
+      <!--  **************** Visualisation ****************  -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find project2)/config/amcl.rviz"/>
+
+      <!--  ****** amcl *****  -->
+    <include file="$(find project2)/launch/amcl.launch.xml"/>
+
+      <!--  ****** ekf localization *****  -->
+    <!-- <include file="$(find project2)/launch/ekl_localization.launch"> -->
+
+
+</launch>

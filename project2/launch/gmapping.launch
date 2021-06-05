@@ -1,0 +1,16 @@
+<launch>
+  <param name="/use_sim_time" value="true"/>
+
+  
+  <include file="$(find project2)/launch/transforms.launch"/>
+
+ <!-- Gmapping -->
+  <node pkg="gmapping" type="slam_gmapping" name="gmap" output="screen">
+    <param name="base_frame" value="camera_pose_frame"/>
+  </node>
+
+
+  <!--  **************** Visualisation ****************  -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find project2)/config/gmapping.rviz"/>
+</launch>
+
