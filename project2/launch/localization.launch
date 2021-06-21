@@ -18,7 +18,6 @@
     <include file="$(find project2)/launch/amcl.launch.xml"/>
 
       <!--  ****** ekf localization *****  -->
-    <!-- <include file="$(find project2)/launch/ekl_localization.launch"> -->
-
+    <include file="$(find project2)/launch/ekl_localization.launch"/>
 
 </launch>

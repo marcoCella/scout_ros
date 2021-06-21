@@ -2,7 +2,7 @@
 
   <!-- <node pkg="tf" type="static_transform_publisher" name="world2odom" args="1.750163555 -3.055174828 1.179773927 0 0 -0.70710678 0.70710678 world odom 100"/> -->
   <!-- <node pkg="tf" type="static_transform_publisher" name="world2cameraOdom" args="1.750163555 -3.055174828 1.179773927 0 0 -0.70710678 0.70710678 world camera_odom_frame 100"/> -->
-  <node pkg="tf" type="static_transform_publisher" name="odom2cameraOdom" args="0 0 0 0 0 0 1 odom camera_odom_frame 100"/>
+  <!-- <node pkg="tf" type="static_transform_publisher" name="odom2cameraOdom" args="0 0 0 0 0 0 1 scout/odom camera_odom_frame 100"/> -->
   <node pkg="tf" type="static_transform_publisher" name="cameraPose2laser" args="0 0 0 0 0 0.70710678 0.70710678 camera_pose_frame laser 100"/>
   <!-- <node pkg="tf" type="static_transform_publisher" name="baseLink2laser" args="0 0 0 0 0 0.70710678 0.70710678 base_link laser 100"/> -->
   <!-- <node pkg="tf" type="static_transform_publisher" name="odom2map" args="0 0 0 0 0 0 1 odom map 100"/> -->

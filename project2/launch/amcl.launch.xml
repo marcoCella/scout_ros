@@ -2,8 +2,8 @@
   <arg name="initial_pose_x"  default="0.0"/>
   <arg name="initial_pose_y"  default="0.0"/>
   <arg name="initial_pose_a"  default="0.0"/>
-  <arg name="odom_frame_id"   default="odom"/>
-  <arg name="base_frame_id"   default="base_link"/>
+  <arg name="odom_frame_id"   default="scout/odom"/>
+  <arg name="base_frame_id"   default="scout/base_link"/>
   <arg name="global_frame_id" default="map"/>
 
   <node pkg="amcl" type="amcl" name="amcl">
@@ -11,7 +11,7 @@
     <!-- Publish scans from best pose at a max of 10 Hz -->
     <param name="odom_model_type"           value="diff"/>
     <param name="gui_publish_rate"          value="10.0"/>
-    <param name="laser_max_beams"           value="60"/>
+    <param name="laser_max_beams"           value="541"/>
     <param name="laser_max_range"           value="20.0"/>
     <param name="min_particles"             value="500"/>
     <param name="max_particles"             value="2000"/>

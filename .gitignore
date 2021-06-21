@@ -49,6 +49,7 @@ qtcreator-*
 
 .vscode
 project2/bag_folder/*.bag
+project2/bag_folder/tf_remapped/*.bag
 
 # Catkin custom files
 CATKIN_IGNORE

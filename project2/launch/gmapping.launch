@@ -7,6 +7,9 @@
  <!-- Gmapping -->
   <node pkg="gmapping" type="slam_gmapping" name="gmap" output="screen">
     <param name="base_frame" value="camera_pose_frame"/>
+    <param name="odom_frame" value="camera_odom_frame"/>
+    <param name="maxUrange" value="20.0"/>
+    <param name="maxRange" value="20.5"/>
   </node>
 
 
