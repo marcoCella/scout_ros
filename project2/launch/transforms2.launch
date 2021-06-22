@@ -2,8 +2,10 @@
 
   <!-- <node pkg="tf" type="static_transform_publisher" name="world2odom" args="1.750163555 -3.055174828 1.179773927 0 0 -0.70710678 0.70710678 world odom 100"/> -->
   <!-- <node pkg="tf" type="static_transform_publisher" name="world2cameraOdom" args="1.750163555 -3.055174828 1.179773927 0 0 -0.70710678 0.70710678 world camera_odom_frame 100"/> -->
-  <node pkg="tf" type="static_transform_publisher" name="map2cameraOdom" args="0 0 0 0 0 0 1 map camera_odom_frame 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="scoutBL2BL" args="0 0 0 0 0 0 1 scout/base_link base_link 100"/>
+
+  <!-- <node pkg="tf" type="static_transform_publisher" name="cmap2scOdom" args="0 0 0 0 0 0 1 map scout/odom 100"/> -->
+  <node pkg="tf" type="static_transform_publisher" name="cmap2camOdom" args="0 0 0 0 0 0 1 map camera_odom_frame 100"/>
+  <node pkg="tf" type="static_transform_publisher" name="cameraPose2BL" args="0 0 0 0 0 0 1 scout/base_link base_link 100"/>
   <node pkg="tf" type="static_transform_publisher" name="baseLink2laser" args="0 0 0 0 0 0.70710678 0.70710678 scout/base_link laser 100"/>
   <!-- <node pkg="tf" type="static_transform_publisher" name="baseLink2laser" args="0 0 0 0 0 0.70710678 0.70710678 base_link laser 100"/> -->
   <!-- <node pkg="tf" type="static_transform_publisher" name="map2odom" args="0 0 0 0 0 0 1 map odom 100"/> -->
