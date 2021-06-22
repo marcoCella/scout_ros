@@ -16,12 +16,19 @@
       <param name="transform_time_offset" value="1.0"/>
       <param name="transform_timeout" value="1.0"/>
 
+      <param name="pose0" value="/amcl_pose"/>
       <param name="odom0" value="/odom"/>
       <param name="odom1" value="/camera/odom/sample"/>
       <param name="imu0" value="/mavros/imu/data_raw"/>
 
-      <rosparam param="odom0_config">[true, true, false,
+      <rosparam param="pose0_config">[true, true, false,
                                       false, false, true,
+                                      false,  false,  false,
+                                      false, false, false,
+                                      false, false, false]</rosparam>
+
+      <rosparam param="odom0_config">[false, false, false,
+                                      false, false, false,
                                       true,  true,  false,
                                       false, false, true,
                                       false, false, false]</rosparam>
@@ -38,10 +45,12 @@
                                         false, false, true,
                                         true,  true,  false]</rosparam>
 
+      <param name="pose0_differential" value="false"/>
       <param name="odom0_differential" value="false"/>
       <param name="odom1_differential" value="true"/>
       <param name="imu0_differential" value="false"/>
 
+      <param name="pose0_relative" value="false"/>
       <param name="odom0_relative" value="false"/>
       <param name="odom1_relative" value="false"/>
       <param name="imu0_relative" value="false"/>
@@ -50,6 +59,7 @@
 
       <param name="print_diagnostics" value="true"/>
 
+      <param name="pose0_queue_size" value="10"/>
       <param name="odom0_queue_size" value="10"/>
       <param name="odom1_queue_size" value="10"/>
       <param name="imu0_queue_size" value="10"/>
