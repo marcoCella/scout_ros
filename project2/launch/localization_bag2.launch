@@ -1,9 +1,0 @@
-<launch>
-
-<include file="$(find project2)/launch/localization.launch" />
-
-<!-- Run the bag -->
-<arg name = "bag_file_name" value = "2"/>
-<node pkg = "rosbag" type = "play" name = "rosbag_play" output = "screen" args = "--clock --rate 1 $(find project2)/bag_folder/tf_remapped/$(arg bag_file_name).bag"/>
-
-</launch>
