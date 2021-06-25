@@ -1,4 +1,7 @@
 <launch>
+      <!--  ****** imu complementary filter  *****  -->
+    <include file="$(find project2)/launch/IMUfilter.launch"/>
+
       <!--  ****** ekf localization filter  *****  -->
     <node name="ekf_node" pkg="robot_localization" type="ekf_localization_node" clear_params="true">
 
@@ -19,7 +22,7 @@
       <param name="pose0" value="/amcl_pose"/>
       <param name="odom0" value="/odom"/>
       <param name="odom1" value="/camera/odom/sample"/>
-      <param name="imu0" value="/mavros/imu/data_raw"/>
+      <param name="imu0" value="/imu/data"/>
 
       <rosparam param="pose0_config">[true, true, false,
                                       false, false, true,
